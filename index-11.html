@@ -1,0 +1,2920 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Akıllı İddaa Analiz</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#171717;--muted:#6b7280;--line:#e5e7eb;--green:#16a34a;--black:#111827}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-size:21px;font-weight:900}.sub{font-size:13px;color:var(--muted);margin-top:2px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 16px;font-weight:700}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:#111;color:#fff;border-color:#111}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.tab{border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 8px;font-weight:800}
+.tab.active{background:#000;color:#fff;border-color:#000}
+main{padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:16px}
+.card h2{font-size:19px;margin:0 0 4px}.muted{color:var(--muted);font-size:14px;line-height:1.45}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
+input,select{width:100%;min-height:50px;border:1px solid #d1d5db;border-radius:14px;background:#fff;padding:0 14px;color:#111}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stack{display:grid;gap:10px}
+.status{margin-top:12px;border:1px dashed #d1d5db;border-radius:14px;padding:13px;font-size:14px;line-height:1.45;color:#4b5563;background:#fafafa;white-space:pre-wrap}
+.match{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px;margin-top:10px}
+.match-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.league{font-size:12px;color:var(--muted)}.teams{font-weight:800;margin-top:4px}
+.score{min-width:54px;height:54px;border-radius:50%;display:grid;place-items:center;border:5px solid #dcfce7;font-weight:900;color:#15803d}
+.odds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.odd{background:#f3f4f6;border-radius:12px;padding:9px;text-align:center}.odd small{display:block;color:var(--muted);font-size:11px}.odd b{font-size:15px}
+.badge{display:inline-block;margin-top:10px;padding:6px 9px;border-radius:999px;background:#f3f4f6;font-size:12px;font-weight:800}
+.hidden{display:none!important}
+.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(560px,100%);z-index:30;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.nav{border:0;background:transparent;padding:7px 3px;color:#777;font-size:12px}.nav span{display:block;font-size:21px}.nav.active{color:var(--green);font-weight:800}
+.notice{padding:14px;border-radius:14px;background:#f9fafb;border:1px solid var(--line);font-size:14px;color:#4b5563}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.kpi b{font-size:22px;display:block;margin-top:3px}
+@media(max-width:420px){.row{display:grid}.grid2{grid-template-columns:1fr}.title{font-size:19px}}
+
+.quick-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.quick-row::-webkit-scrollbar{display:none}
+.quick-chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:800}
+.quick-chip.active{background:#111;color:#fff;border-color:#111}
+.tier{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900}
+.tier.elite{background:#dcfce7;color:#166534}.tier.strong{background:#fef3c7;color:#92400e}.tier.watch{background:#f3f4f6;color:#4b5563}
+.reason-list{margin-top:8px;font-size:12px;color:#4b5563;line-height:1.45}
+.favorite-btn{border:0;background:#fff;border-radius:999px;width:38px;height:38px;font-size:20px;box-shadow:0 0 0 1px #e5e7eb inset}
+.favorite-btn.on{background:#111;color:#fff}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.detail-btn{width:100%;margin-top:10px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:800}
+.detail-box{display:none;margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:12px;line-height:1.5}
+.detail-box.open{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.detail-item{background:#f9fafb;border-radius:10px;padding:9px}
+
+.hero-pick{background:#111;color:#fff;border-radius:20px;padding:16px;margin-bottom:16px}
+.hero-pick .muted{color:#d1d5db}
+.hero-grid{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+.hero-score{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#111;font-weight:950;font-size:17px}
+.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.legend-pill{padding:6px 9px;border-radius:999px;background:#f3f4f6;font-size:11px;font-weight:800}
+.perf-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.perf-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px;text-align:center}
+.perf-box b{display:block;font-size:18px}
+.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.small-btn{border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:7px 9px;font-size:12px;font-weight:800}
+
+.meter{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.meter>span{display:block;height:100%;background:#111;border-radius:999px}
+.mini-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.mini-table td{padding:7px 4px;border-bottom:1px solid #eee}
+.spark{display:flex;gap:4px;align-items:flex-end;height:28px;margin-top:6px}
+.spark span{width:6px;background:#111;border-radius:4px 4px 0 0}
+
+.rank-grid{display:grid;gap:10px}
+.rank-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px}
+.rank-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.rank-num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#111;color:#fff;font-weight:900}
+.risk-card{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:12px}
+
+.split-confidence{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.conf-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+.conf-box span{display:block;color:#6b7280;font-size:11px}
+.conf-box b{font-size:18px}
+.risk-warn{margin-top:8px;padding:8px 10px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;font-size:12px;font-weight:800}
+.calibration{margin-top:8px;font-size:11px;color:#6b7280}
+
+.profile-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.profile-btn{border:1px solid #e5e7eb;background:#fff;border-radius:12px;padding:10px 6px;font-size:12px;font-weight:800}
+.profile-btn.active{background:#111;color:#fff;border-color:#111}
+.clean-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#ecfdf5;color:#166534;font-size:11px;font-weight:900}
+.warn-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#fff7ed;color:#9a3412;font-size:11px;font-weight:900}
+
+.engine-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.engine-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+.engine-box span{display:block;color:#6b7280;font-size:11px}
+.engine-box b{font-size:17px}
+
+.movement-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.movement-box{border:1px solid #e5e7eb;border-radius:12px;padding:9px;background:#fff;text-align:center}
+.movement-up{color:#b91c1c;font-weight:900}.movement-down{color:#166534;font-weight:900}.movement-flat{color:#6b7280;font-weight:900}
+.league-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.league-table th,.league-table td{padding:8px 5px;border-bottom:1px solid #eee;text-align:left}
+.safe3{background:#ecfdf5;border:1px solid #bbf7d0;border-radius:16px;padding:12px}
+
+.band-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.band-table th,.band-table td{padding:8px 5px;border-bottom:1px solid #eee;text-align:left}
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.type-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+.type-box span{display:block;color:#6b7280;font-size:11px}.type-box b{font-size:17px}
+
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.report-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+.report-box span{display:block;color:#6b7280;font-size:11px}.report-box b{font-size:18px}
+.market-pill{display:inline-flex;padding:5px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:11px;font-weight:900}
+
+.signal-grid{display:grid;gap:10px;margin-top:10px}
+.signal-card{border:1px solid #e5e7eb;border-radius:15px;padding:12px;background:#fff}
+.signal-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.signal-good{background:#ecfdf5;border-color:#bbf7d0}
+.signal-warn{background:#fff7ed;border-color:#fed7aa}
+.signal-bad{background:#fef2f2;border-color:#fecaca}
+.signal-tag{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#f3f4f6}
+
+.avoid-grid{display:grid;gap:10px;margin-top:10px}
+.avoid-card{background:#fef2f2;border:1px solid #fecaca;border-radius:15px;padding:12px}
+.summary-line{padding:9px 10px;border-radius:12px;background:#f9fafb;border:1px solid #e5e7eb;margin-top:7px;font-size:12px}
+.export-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+.week-bars{display:flex;gap:8px;align-items:flex-end;height:120px;margin-top:12px;padding:8px 4px 0}
+.week-col{flex:1;text-align:center;font-size:10px;color:#6b7280}
+.week-bar{width:100%;min-height:4px;background:#111;border-radius:7px 7px 0 0;margin-bottom:5px}
+.backup-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+.maturity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.maturity-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px;text-align:center}
+.maturity-box span{display:block;color:#6b7280;font-size:11px}.maturity-box b{font-size:17px}
+.audit-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-top:10px}
+.audit-good{color:#166534}.audit-warn{color:#92400e}.audit-bad{color:#991b1b}
+
+.decision-card{border:1px solid #e5e7eb;border-radius:15px;padding:12px;margin-top:10px;background:#fff}
+.decision-go{background:#ecfdf5;border-color:#bbf7d0}.decision-wait{background:#fff7ed;border-color:#fed7aa}.decision-no{background:#fef2f2;border-color:#fecaca}
+.decision-title{display:flex;justify-content:space-between;gap:8px;align-items:center}
+
+.consistency-card{border:1px solid #e5e7eb;border-radius:14px;padding:11px;margin-top:9px;background:#fff}
+.consistency-good{background:#ecfdf5;border-color:#bbf7d0}
+.consistency-warn{background:#fff7ed;border-color:#fed7aa}
+.consistency-bad{background:#fef2f2;border-color:#fecaca}
+.compact-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.compact-table th,.compact-table td{padding:8px 5px;border-bottom:1px solid #eee;text-align:left}
+
+.trend-list{display:grid;gap:9px;margin-top:10px}
+.trend-item{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px}
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.health-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px;text-align:center}
+.health-box span{display:block;color:#6b7280;font-size:11px}.health-box b{font-size:17px}
+.market3-grid{display:grid;gap:9px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+<header class="top">
+  <div class="head">
+    <div><div class="title">Akıllı İddaa Analiz</div><div class="sub">Canlı maç + oran + geçmiş analiz</div></div>
+    <button class="btn" id="headerRefresh" type="button">Yenile</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-view="today" type="button">Bugün</button>
+    <button class="tab" data-view="strong" type="button">Güçlü</button>
+    <button class="tab" data-view="analysis" type="button">Analiz</button>
+  </div>
+</header>
+
+<main>
+<section id="todayView">
+  <div id="bestPickCard" class="hero-pick">
+    <div class="hero-grid">
+      <div>
+        <div style="font-size:12px;opacity:.75">⭐ GÜNÜN EN GÜÇLÜ ADAYI</div>
+        <div id="bestPickTeams" style="font-size:20px;font-weight:950;margin-top:5px">Bugünü yenile</div>
+        <div id="bestPickPrediction" style="margin-top:8px;font-weight:800">Tahmin hazırlanıyor</div>
+        <div id="bestPickReason" class="muted" style="margin-top:7px">En yüksek güvenli maç burada gösterilecek.</div>
+      </div>
+      <div id="bestPickScore" class="hero-score">%0</div>
+    </div>
+  </div>
+
+  <div class="card" id="dashboardSummary">
+    <h2>📌 Günlük Özet</h2>
+    <div class="grid2" style="margin-top:10px">
+      <div class="kpi"><span>Toplam maç</span><b id="sumTotal">0</b></div>
+      <div class="kpi"><span>Güçlü aday</span><b id="sumStrong">0</b></div>
+      <div class="kpi"><span>MS tahmini</span><b id="sumMs">0</b></div>
+      <div class="kpi"><span>Gol tahmini</span><b id="sumGoal">0</b></div>
+      <div class="kpi"><span>Favori maç</span><b id="sumFav">0</b></div>
+      <div class="kpi"><span>Temiz veri</span><b id="sumClean">0</b></div>
+    </div>
+    <div class="status" id="summaryText">Bugünü yenile dediğinde özet hazırlanacak.</div>
+    <div style="margin-top:12px;font-size:12px;font-weight:900">Güven açıklaması</div>
+    <div class="legend-row">
+      <span class="legend-pill">💎 %85+ Çok güçlü</span>
+      <span class="legend-pill">🔥 %75–84 Güçlü</span>
+      <span class="legend-pill">👀 %65–74 İzlenir</span>
+    </div>
+  </div>
+
+  <div class="card" id="watchlistCard">
+    <div class="section-title-row">
+      <div>
+        <h2 style="margin:0">⭐ Favori Takip</h2>
+        <div class="muted">Yıldızladığın maçları tek yerde takip et.</div>
+      </div>
+      <button class="small-btn" id="openFavorites" type="button">Göster</button>
+    </div>
+    <div id="watchlistSummary" class="status">Henüz favori maç seçmedin.</div>
+  </div>
+
+  <div class="card" id="performanceCard">
+    <div class="section-title-row">
+      <div>
+        <h2 style="margin:0">📊 Tahmin Performansı</h2>
+        <div class="muted">Telefonda kayıtlı sonuçlanan tahminlerin özeti.</div>
+      </div>
+      <button class="small-btn" id="refreshPerformance" type="button">Yenile</button>
+    </div>
+    <div class="perf-row">
+      <div class="perf-box"><span>Toplam</span><b id="perfTotal">0</b></div>
+      <div class="perf-box"><span>Gelen</span><b id="perfWon">0</b></div>
+      <div class="perf-box"><span>Başarı</span><b id="perfPct">%0</b></div>
+    </div>
+    <div id="perfText" class="status">Henüz sonuçlanmış tahmin yok.</div>
+  </div>
+
+  <div class="card" id="topFiveCard">
+    <h2>🏆 Bugünün En İyi 5'i</h2>
+    <div class="muted">Güven puanı, oran dengesi ve tahmin netliğine göre en güçlü beş aday.</div>
+    <div id="topFiveSummary" class="status">Bugünü yenile dediğinde en iyi 5 aday burada çıkacak.</div>
+    <div id="topFiveResults"></div>
+  </div>
+
+  <div class="card" id="consistencyCard">
+    <h2>🧩 Çelişki Kontrolü</h2>
+    <div class="muted">Oran, geçmiş hafıza, risk ve tahmin güveni birbirini destekliyor mu kontrol eder.</div>
+    <div id="consistencyResults"></div>
+  </div>
+
+  <div class="card" id="leagueQualityCard">
+    <h2>🏟️ Lig Kalite Skoru</h2>
+    <div class="muted">Liglerdeki geçmiş örnek sayısı ve doğruluğa göre güvenilirlik sıralaması.</div>
+    <div id="leagueQualityResults"></div>
+  </div>
+
+  <div class="card" id="doubleChanceCard">
+    <h2>🛡️ En İyi 3 Çifte Şans</h2>
+    <div class="muted">1X / X2 alternatifleri içinde en güvenli üç aday.</div>
+    <div id="doubleChanceResults" class="market3-grid"></div>
+  </div>
+
+  <div class="card" id="oddsTrendLeadersCard">
+    <h2>📉 Oran Hareketi Liderleri</h2>
+    <div class="muted">Gün içinde favori oranı en belirgin düşen/yükselen maçlar.</div>
+    <div id="oddsTrendLeaders" class="trend-list"></div>
+  </div>
+
+  <div class="card" id="dataHealthCard">
+    <h2>🩺 Veri Sağlığı</h2>
+    <div class="muted">Bugünkü veri akışının temizliğini ve yeterliliğini kontrol eder.</div>
+    <div class="health-grid">
+      <div class="health-box"><span>Temiz</span><b id="healthClean">0</b></div>
+      <div class="health-box"><span>Şüpheli</span><b id="healthBad">0</b></div>
+      <div class="health-box"><span>Snapshot</span><b id="healthSnapshots">0</b></div>
+    </div>
+    <div id="healthText" class="status">Bugünü yenile dediğinde veri sağlığı hesaplanacak.</div>
+  </div>
+
+  <div class="card" id="compactTopCard">
+    <h2>📌 Hızlı Top 10</h2>
+    <div class="muted">Tek bakışta en güçlü 10 temiz aday.</div>
+    <div id="compactTopResults"></div>
+  </div>
+
+  <div class="card" id="decisionDeskCard">
+    <h2>🎛️ Karar Masası</h2>
+    <div class="muted">Tahmin, risk, geçmiş başarı ve oran hareketini tek kararda birleştirir.</div>
+    <div id="decisionDesk"></div>
+  </div>
+
+  <div class="card" id="dailyIntelligenceCard">
+    <h2>🧭 Günün Akıllı Özeti</h2>
+    <div class="muted">Bugünkü veri, güven ve risk dağılımını kısa şekilde özetler.</div>
+    <div id="dailyIntelligence" class="status">Bugünü yenile dediğinde özet hazırlanacak.</div>
+  </div>
+
+  <div class="card" id="avoidCard">
+    <h2>⛔ Kaçınılacak Maçlar</h2>
+    <div class="muted">Yüksek risk, zayıf güven veya çelişkili sinyal taşıyan maçlar.</div>
+    <div id="avoidResults" class="avoid-grid"></div>
+  </div>
+
+  <div class="card" id="signalCenterCard">
+    <h2>🚨 Sinyal Merkezi</h2>
+    <div class="muted">Oran hareketi, güven değişimi ve çelişkili tahminleri tek yerde toplar.</div>
+    <div id="signalCenterSummary" class="status">En az iki farklı yenileme sonrası oran hareketi sinyalleri burada görünür.</div>
+    <div id="signalCenterResults" class="signal-grid"></div>
+  </div>
+
+  <div class="card" id="safeThreeCard">
+    <h2>🛡️ Bugünün En Güvenli 3'ü</h2>
+    <div class="muted">Yüksek güven + düşük risk + temiz veri + geçmiş performans filtresinden geçen adaylar.</div>
+    <div id="safeThreeResults" class="rank-grid" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="predictionTypePerformance">
+    <h2>🎯 Tahmin Türü Başarısı</h2>
+    <div class="muted">Geçmişte hangi tahmin türünün daha başarılı olduğunu gösterir.</div>
+    <div id="predictionTypeGrid" class="type-grid"></div>
+  </div>
+
+  <div class="card" id="weeklyPerformanceCard">
+    <h2>📈 Son 7 Gün Performans</h2>
+    <div class="muted">Sonuçlanan tahminlerin günlük başarı oranını gösterir.</div>
+    <div id="weeklyBars" class="week-bars"></div>
+    <div id="weeklySummary" class="status">Henüz yeterli geçmiş veri yok.</div>
+  </div>
+
+  <div class="card" id="dailyReportCard">
+    <h2>📅 Günlük Sonuç Raporu</h2>
+    <div class="muted">Sonuçlanan tahminlerden günlük MS ve gol performansını özetler.</div>
+    <div class="report-grid">
+      <div class="report-box"><span>MS başarı</span><b id="dailyMsPct">%0</b></div>
+      <div class="report-box"><span>Gol başarı</span><b id="dailyGoalPct">%0</b></div>
+      <div class="report-box"><span>Gelen MS</span><b id="dailyMsWon">0</b></div>
+      <div class="report-box"><span>Gelen Gol</span><b id="dailyGoalWon">0</b></div>
+    </div>
+    <div id="dailyReportText" class="status">Henüz sonuçlanmış günlük kayıt yok.</div>
+  </div>
+
+  <div class="card" id="marketMemoryCard">
+    <h2>🧠 Lig + Oran Hafızası</h2>
+    <div class="muted">Aynı lig ve benzer favori oran aralığındaki geçmiş sonuçları hatırlar.</div>
+    <div id="marketMemorySummary" class="status">Geçmiş örnek biriktikçe otomatik çalışacak.</div>
+    <div class="status" id="snapshotCount">Bugün henüz oran snapshot sayısı hesaplanmadı.</div>
+  </div>
+
+  <div class="card" id="accuracyAuditCard">
+    <h2>✅ Doğruluk Denetimi</h2>
+    <div class="muted">Sistemin geçmişte ne kadar güvenilir çalıştığını örnek sayısı ile birlikte kontrol eder.</div>
+    <div class="maturity-grid">
+      <div class="maturity-box"><span>Sonuçlanan</span><b id="auditResolved">0</b></div>
+      <div class="maturity-box"><span>MS doğruluk</span><b id="auditMsPct">%0</b></div>
+      <div class="maturity-box"><span>Gol doğruluk</span><b id="auditGoalPct">%0</b></div>
+    </div>
+    <div id="auditSummary" class="audit-card">Henüz yeterli sonuçlanmış tahmin yok.</div>
+  </div>
+
+  <div class="card" id="calibrationSummaryCard">
+    <h2>🧪 Model Kalibrasyonu</h2>
+    <div class="muted">Tahmin motorunun söylediği güven ile gerçek geçmiş başarı arasındaki farkı izler.</div>
+    <div id="calibrationSummary" class="status">Henüz yeterli sonuçlanmış tahmin yok.</div>
+  </div>
+
+  <div class="card" id="confidenceBandCard">
+    <h2>📐 Güven Bandı Kalibrasyonu</h2>
+    <div class="muted">%65–74, %75–84 ve %85+ tahminlerin gerçek başarı oranlarını karşılaştırır.</div>
+    <div id="confidenceBandResults"></div>
+  </div>
+
+  <div class="card" id="leaguePerformanceCard">
+    <h2>🏆 Lig Bazlı Başarı</h2>
+    <div class="muted">Geçmişte sonuçlanmış tahminlerden liglere göre başarı oranı.</div>
+    <div id="leaguePerformance"></div>
+  </div>
+
+  <div class="card" id="topMsCard">
+    <h2>🎯 En İyi 3 MS</h2>
+    <div class="muted">Doğrudan MS1/MS2 tahmini üreten en yüksek güvenli üç maç.</div>
+    <div id="topMsResults" class="rank-grid" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="topGoalCard">
+    <h2>⚽ En İyi 3 Gol</h2>
+    <div class="muted">2.5 ÜST/ALT sinyali en net görünen üç maç.</div>
+    <div id="topGoalResults" class="rank-grid" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="riskCard">
+    <h2>⚠️ Riskli Maçlar</h2>
+    <div class="muted">Oranları birbirine yakın veya tahmini kararsız kalan maçlar.</div>
+    <div id="riskResults" class="rank-grid" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Hızlı seçim</h2>
+    <div class="quick-row" style="margin-top:10px">
+      <button class="quick-chip active" id="quickAll" type="button">Tümü</button>
+      <button class="quick-chip" id="quickStrong" type="button">🔥 %75+</button>
+      <button class="quick-chip" id="quickElite" type="button">💎 %85+</button>
+      <button class="quick-chip" id="quickGoals" type="button">⚽ Gol tahmini</button>
+      <button class="quick-chip" id="quickFavs" type="button">⭐ Favorilerim</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔎 Filtreler</h2>
+    <div class="grid2">
+      <div>
+        <label>Minimum güven</label>
+        <select id="minConfidence">
+          <option value="0">Tümü</option>
+          <option value="65">%65+</option>
+          <option value="75" selected>%75+</option>
+          <option value="85">%85+</option>
+        </select>
+      </div>
+      <div>
+        <label>Tahmin türü</label>
+        <select id="predictionFilter">
+          <option value="all">Tümü</option>
+          <option value="MS1">MS1</option>
+          <option value="MS2">MS2</option>
+          <option value="1X">1X</option>
+          <option value="X2">X2</option>
+          <option value="2.5 ÜST">2.5 ÜST</option>
+          <option value="2.5 ALT">2.5 ALT</option>
+        </select>
+      </div>
+    </div>
+    <label>Lig filtresi</label>
+    <select id="leagueFilter">
+      <option value="all">Tüm ligler</option>
+    </select>
+
+    <label>Takım ara</label>
+    <input id="teamSearch" type="search" placeholder="Takım adı yaz">
+    <div class="toolbar" style="margin-top:10px">
+      <select id="sortMatches">
+        <option value="confidence">Güvene göre sırala</option>
+        <option value="ms1">MS1 oranına göre</option>
+        <option value="ms2">MS2 oranına göre</option>
+        <option value="name">Takım adına göre</option>
+      </select>
+      <button class="btn" id="resetFilters" type="button">Sıfırla</button>
+    </div>
+    <div style="margin-top:12px;font-size:12px;font-weight:900">Risk profili</div>
+    <div class="profile-row">
+      <button class="profile-btn active" id="riskProfileAll" type="button">Tümü</button>
+      <button class="profile-btn" id="riskProfileLow" type="button">Düşük risk</button>
+      <button class="profile-btn" id="riskProfileHigh" type="button">Yüksek risk</button>
+    </div>
+    <button class="btn primary" id="applyFilters" type="button" style="width:100%;margin-top:10px">Filtreyi uygula</button>
+  </div>
+
+  <div class="card">
+    <h2>Bugünün maçları</h2>
+    <div class="muted">Aktarım adresinden bugünün maçlarını alır. JSON farklı yapıda gelse de yaygın alan adlarını otomatik tanımaya çalışır.</div>
+
+    <label>Maç kaynağı</label>
+    <select id="source">
+      <option value="mackolik">Maçkolik aktarım katmanı</option>
+      <option value="api">Özel JSON adresi</option>
+    </select>
+
+    <label>Aktarım adresi</label>
+    <input id="endpoint" type="url" value="https://script.google.com/macros/s/AKfycbwg6AcWgDUywUbos5Jik7KrkwBf5TkN4q-bgEliWkE95QMRiXGOuvAxRweVUocX2qm5Sg/exec" readonly>
+
+    <div class="grid2" style="margin-top:10px">
+      <button class="btn" id="saveSource" type="button">Maç kaynağı hazır</button>
+      <button class="btn primary" id="todayRefresh" type="button">Bugünü yenile</button>
+    </div>
+
+    <div class="notice" style="margin-top:10px">Maç servisi ve skor servisi artık sabittir; adresleri değiştirmen gerekmez.</div>
+    <div class="status" id="status">Hazır. Önce “Kaynağı bağla”, sonra “Bugünü yenile”ye bas.</div>
+    <div id="todayResults"></div>
+  </div>
+</section>
+
+<section id="strongView" class="hidden">
+  <div class="card">
+    <h2>🔥 Güçlü adaylar</h2><div id="strongSummary" class="status">Bugünü yenile dediğinde güçlü adaylar özetlenecek.</div>
+    <div class="muted">Bugün çekilen maçlar içinden oran dengesi ve favori oranına göre puanı 70 ve üzeri olanları gösterir.</div>
+    <div id="strongResults" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<section id="analysisView" class="hidden">
+  <div class="card">
+    <h2>Geçmiş oran analizi</h2>
+    <div class="muted">CSV dosyanı yükle, oran aralığına göre geçmiş sonuçları incele.</div>
+    <label>CSV dosyası</label>
+    <input id="csvFile" type="file" accept=".csv,.txt">
+    <div class="row">
+      <div><label>Oran türü</label><select id="market"><option value="ms1">MS 1</option><option value="x">MS X</option><option value="ms2">MS 2</option></select></div>
+      <div><label>Oran</label><input id="odd" type="number" min="1.01" step="0.01" value="1.50"></div>
+    </div>
+    <label>Tolerans</label>
+    <select id="tol"><option value="0">Tam oran</option><option value="0.01">±0.01</option><option value="0.02" selected>±0.02</option><option value="0.05">±0.05</option></select>
+    <button class="btn primary" id="analyzeBtn" type="button" style="width:100%;margin-top:12px">Geçmiş Maçları Bul</button>
+    <div class="status" id="analysisStatus">Henüz CSV yüklenmedi.</div>
+    <div id="kpis" class="grid2" style="margin-top:10px"></div>
+    <div id="analysisResults"></div>
+  </div>
+</section>
+
+
+<section id="historyView" class="hidden">
+  <div class="card">
+    <h2>Geçmiş tahminler</h2>
+    <div class="muted">Uygulama her gün oluşturduğu tahminleri telefonda kaydeder. Sonuç verisi geldiğinde ana tahminlerin kaçının tuttuğunu hesaplar.</div>
+
+    <div class="grid2" style="margin-top:12px">
+      <button class="btn primary" id="checkYesterday" type="button">Dünü kontrol et</button>
+      <button class="btn" id="refreshHistory" type="button">Geçmişi yenile</button>
+    </div>
+
+    <div id="historySummary" class="status">Henüz kayıt yok.</div>
+    <div class="export-row">
+      <button class="btn" id="exportHistory" type="button">Geçmişi CSV indir</button>
+      <button class="btn" id="copyTodaySummary" type="button">Bugün özetini kopyala</button>
+    </div>
+    <div id="historyResults"></div>
+  </div>
+</section>
+
+<section id="settingsView" class="hidden">
+  <div class="card">
+    <h2>Ayarlar</h2>
+    <div class="notice"><b>Genel final durumu:</b> maç/oran akışı, tahmin motoru, geçmiş kayıt, skor kontrolü, Top 5, MS/Gol listeleri, risk filtreleri, favoriler, veri kalite kontrolü, gerçek oran hareketi, lig bazlı başarı, tahmin türü başarı analizi, güven bandı kalibrasyonu, kendini geçmiş sonuçlara göre ayarlayan güven motoru, günlük sonuç raporu, lig + oran hafızası, MS/Gol için ayrı otomatik ağırlık, lig filtresi, sıkı En Güvenli 3 ve Top 5 elemesi, gerçek oran snapshot takibi, Sinyal Merkezi, Günün Akıllı Özeti, Kaçınılacak Maçlar, Doğruluk Denetimi, Karar Masası, Çelişki Kontrolü, Lig Kalite Skoru, Hızlı Top 10, En İyi 3 Çifte Şans, Oran Hareketi Liderleri, Veri Sağlığı, kayıtlı filtre tercihleri, örnek sayısına göre güven sınırı, CSV geçmiş dışa aktarma, son 7 gün performans grafiği, veri yedekleme/geri yükleme ve otomatik eski snapshot temizliği tek dosyada aktif.</div>
+    <div style="margin-top:14px;font-weight:900">💾 Veri Yedekleme</div>
+    <div class="muted">Geçmiş tahminler, favoriler ve oran snapshot kayıtlarını tek dosyada yedekle.</div>
+    <div class="backup-grid">
+      <button class="btn" id="backupDataBtn" type="button">Yedek indir</button>
+      <button class="btn" id="restoreDataBtn" type="button">Yedek yükle</button>
+    </div>
+    <input id="restoreDataFile" type="file" accept=".json" class="hidden">
+    <div id="backupStatus" class="status">Yedekleme hazır.</div>
+
+    <div class="notice">Kaydettiğin aktarım adresi bu telefonda tutulur. Sayfayı kapatıp açsan da geri gelir.</div>
+    <label>Sonuç / skor servisi</label>
+    <input id="resultsEndpoint" type="url" value="https://script.google.com/macros/s/AKfycbyjv4oxarBDp7xcrBheDNPzS17mEb8aaH3YjGCbWPdJm_pQ4kdPKfxgDkfR_TqWVSjV/exec" readonly>
+    <button class="btn primary" id="saveResultsEndpoint" type="button" style="width:100%;margin-top:10px">Skor servisi hazır</button>
+    <div class="status" id="resultsEndpointStatus">Skor servisi henüz bağlanmadı.</div>
+    <button class="btn" id="clearSettings" type="button" style="width:100%;margin-top:12px">Kayıtlı adresleri sıfırla</button>
+  </div>
+</section>
+</main>
+
+<nav class="bottom">
+  <button class="nav active" data-view="today" type="button"><span>⚽</span>Maçlar</button>
+  <button class="nav" data-view="strong" type="button"><span>🔥</span>Güçlü</button>
+  <button class="nav" data-view="history" type="button"><span>🕘</span>Geçmiş</button>
+  <button class="nav" data-view="analysis" type="button"><span>📊</span>Analiz</button>
+  <button class="nav" data-view="settings" type="button"><span>⚙️</span>Ayarlar</button>
+</nav>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const $ = id => document.getElementById(id);
+const endpoint = $("endpoint"), status = $("status"), todayResults = $("todayResults"), strongResults = $("strongResults");
+const FIXED_MATCH_ENDPOINT="https://script.google.com/macros/s/AKfycbwg6AcWgDUywUbos5Jik7KrkwBf5TkN4q-bgEliWkE95QMRiXGOuvAxRweVUocX2qm5Sg/exec";
+const FIXED_RESULTS_ENDPOINT="https://script.google.com/macros/s/AKfycbyjv4oxarBDp7xcrBheDNPzS17mEb8aaH3YjGCbWPdJm_pQ4kdPKfxgDkfR_TqWVSjV/exec";
+const todayRefresh = $("todayRefresh"), headerRefresh = $("headerRefresh"), saveSource = $("saveSource");
+let liveMatches = [], csvRows = [];
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function num(v){if(v===null||v===undefined||v==="")return null;const n=Number(String(v).replace(",","."));return Number.isFinite(n)?n:null;}
+function todayISO(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
+
+function setView(view){
+  ["today","strong","history","analysis","settings"].forEach(v=>$(v+"View").classList.toggle("hidden",v!==view));
+  document.querySelectorAll("[data-view]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.view===view);
+  });
+  if(view==="strong") renderStrong();
+  if(view==="today") renderTopFive();
+  if(view==="history") renderHistory();
+}
+document.addEventListener("click",e=>{
+  const detail=e.target.closest("[data-detail-key]");
+  if(detail){
+    toggleDetail(detail.dataset.detailKey);
+    detail.textContent=detail.textContent==="Detayı aç"?"Detayı kapat":"Detayı aç";
+    return;
+  }
+  const fav=e.target.closest("[data-fav-key]");
+  if(fav){toggleFavoriteByKey(fav.dataset.favKey);return;}
+  const b=e.target.closest("[data-view]");
+  if(b) setView(b.dataset.view);
+});
+
+function normalize(item){
+  const s=item||{}, teams=s.teams||{}, odds=s.odds||s.prices||{}, league=s.league||{};
+  const home=s.home||s.homeTeam||s.home_team||(teams.home&&teams.home.name)||teams.home||"";
+  const away=s.away||s.awayTeam||s.away_team||(teams.away&&teams.away.name)||teams.away||"";
+  if(!home||!away)return null;
+  return {
+    date:s.date||s.kickoff||s.start_time||(s.fixture&&s.fixture.date)||"",
+    league:typeof league==="string"?league:(league.name||s.leagueName||s.competition||"Lig"),
+    home:String(home),away:String(away),
+    ms1:num(s.ms1??s.homeOdd??s.home_odd??odds.ms1??odds.home??odds["1"]),
+    x:num(s.x??s.drawOdd??s.draw_odd??odds.x??odds.draw??odds["X"]),
+    ms2:num(s.ms2??s.awayOdd??s.away_odd??odds.ms2??odds.away??odds["2"])
+  };
+}
+function pick(o, keys){
+  for(const k of keys){
+    if(o && o[k] !== undefined && o[k] !== null && o[k] !== "") return o[k];
+  }
+  return null;
+}
+function splitTeams(text){
+  if(!text || typeof text!=="string") return null;
+  const seps=[" - "," – "," — "," vs "," VS "," v "," : "];
+  for(const s of seps){
+    if(text.includes(s)){
+      const a=text.split(s).map(x=>x.trim()).filter(Boolean);
+      if(a.length>=2) return [a[0],a[1]];
+    }
+  }
+  return null;
+}
+function flatOddsContainer(v){
+  if(Array.isArray(v)) return v;
+  if(v && typeof v==="object"){
+    let out=[];
+    for(const [k,val] of Object.entries(v)){
+      if(Array.isArray(val)){
+        out.push(...val.map(x=>(x&&typeof x==="object"?{__key:k,...x}:x)));
+      }else if(val && typeof val==="object"){
+        out.push({__key:k,...val});
+      }
+    }
+    return out;
+  }
+  return [];
+}
+function normalizeSelection(s){
+  return String(s??"").toLocaleLowerCase("tr-TR")
+    .replace(/ı/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g")
+    .replace(/ü/g,"u").replace(/ö/g,"o").replace(/ç/g,"c")
+    .replace(/\s+/g," ").trim();
+}
+function cleanTeamName(v){
+  let s=String(v??"").trim();
+  s=s.replace(/^\s*\(\d+\)\s*/,"");
+  s=s.replace(/\s*\(\d+\)\s*$/,"");
+  s=s.replace(/\s+\d{4,}\s*$/,"");
+  s=s.replace(/[\s\-–—:]+\d{4,}\s*$/,"");
+  s=s.replace(/\s{2,}/g," ").trim();
+  return s;
+}
+function looksLikeMarketText(v){
+  let s=normalizeSelection(v);
+  s=s.replace(/[.\-–—:;/\\|()[\]]+/g," ").replace(/\s+/g," ").trim();
+  if(!s) return false;
+  const bad=[
+    "ilk yari sonucu","sans ilk yari sonucu","karsilikli gol","kars gol",
+    "toplam","toplam gol","alt ust","handikap","cifte sans","gol sayisi",
+    "hangi takim gol atar","korner","kart","oyuncu","ilk yari","ikinci yari",
+    "mac sonucu ve","gol olur","gol olmaz"
+  ];
+  return bad.some(x=>s.includes(x));
+}
+function canonicalTeam(v){
+  let s=normalizeSelection(cleanTeamName(v));
+  s=s.replace(/^club\s+/,"").replace(/^fc\s+/,"").replace(/\s+fc$/,"").trim();
+  return s;
+}
+function canonicalPair(home,away){
+  return canonicalTeam(home)+"__"+canonicalTeam(away);
+}
+function oddsToMatches(odds){
+  const groups = new Map();
+
+  for(const raw of odds){
+    if(!raw || typeof raw!=="object") continue;
+
+    let home = pick(raw,["home","homeTeam","home_team","host","team1","ev","evSahibi","ev_sahibi"]);
+    let away = pick(raw,["away","awayTeam","away_team","guest","team2","dep","deplasman"]);
+    let matchText = pick(raw,["match","matchName","eventName","event","fixture","name","title","__key"]);
+
+    if(home && typeof home==="object") home=home.name||home.title||home.shortName||"";
+    if(away && typeof away==="object") away=away.name||away.title||away.shortName||"";
+
+    if((!home || !away) && typeof matchText==="string"){
+      const sp=splitTeams(matchText);
+      if(sp){ home=home||sp[0]; away=away||sp[1]; }
+    }
+
+    home=cleanTeamName(home);
+    away=cleanTeamName(away);
+
+    // Skip records where market names were mistaken for team names
+    if(!home || !away || looksLikeMarketText(home) || looksLikeMarketText(away)) continue;
+
+    const pair = canonicalPair(home,away);
+    if(!pair || pair==="__") continue;
+
+    if(!groups.has(pair)){
+      const leagueRaw=pick(raw,["league","leagueName","competition","tournament","category"]);
+      groups.set(pair,{
+        date:pick(raw,["date","kickoff","start_time","startTime","time"])||"",
+        league:(leagueRaw && typeof leagueRaw==="object") ? (leagueRaw.name||leagueRaw.title||"Lig") : (leagueRaw||"Lig"),
+        home, away, ms1:null, x:null, ms2:null
+      });
+    }
+
+    const g=groups.get(pair);
+
+    const d1=num(pick(raw,["ms1","homeOdd","home_odd","odd1","odds1"]));
+    const dx=num(pick(raw,["x","drawOdd","draw_odd","oddX","oddsX","ms0"]));
+    const d2=num(pick(raw,["ms2","awayOdd","away_odd","odd2","odds2"]));
+    if(d1!==null) g.ms1=d1;
+    if(dx!==null) g.x=dx;
+    if(d2!==null) g.ms2=d2;
+
+    const market = normalizeSelection(pick(raw,["market","marketName","betType","type","group","market_name"]));
+    const sel = normalizeSelection(pick(raw,["selection","selectionName","outcome","outcomeName","pick","option","code","label","side"]));
+    const val = num(pick(raw,["odd","odds","price","value","decimal","rate","coefficient"]));
+
+    // Only accept 1X2 / Match Result market rows
+    const is1x2 = !market || market==="1x2" || market.includes("mac sonucu") || market.includes("match result") || market.includes("ms");
+    if(val!==null && is1x2){
+      const s=(market+" "+sel).trim();
+      if(["1","ms1","home","ev sahibi","ev"].includes(sel) || /\b(ms ?1|home|ev sahibi)\b/.test(s)) g.ms1=val;
+      else if(["x","ms0","draw","beraberlik"].includes(sel) || /\b(draw|beraberlik|ms ?0| x )\b/.test(" "+s+" ")) g.x=val;
+      else if(["2","ms2","away","deplasman","dep"].includes(sel) || /\b(ms ?2|away|deplasman|dep)\b/.test(s)) g.ms2=val;
+    }
+  }
+
+  // Keep only real 1X2 matches. Require at least two prices; ideally all three.
+  const out=[...groups.values()].filter(m=>{
+    const n=[m.ms1,m.x,m.ms2].filter(v=>v!==null).length;
+    return m.home && m.away && n>=2;
+  });
+
+  // Prefer rows with all 3 odds and unique home-away pair
+  return out.sort((a,b)=>{
+    const ac=[a.ms1,a.x,a.ms2].filter(v=>v!==null).length;
+    const bc=[b.ms1,b.x,b.ms2].filter(v=>v!==null).length;
+    return bc-ac;
+  });
+}
+function extract(payload){
+  // Mevcut Apps Script çıktısı:
+  // {success:true, odds:[{home,away,ms1,x,ms2,alt25,ust25}, ...]}
+  const rows = payload && Array.isArray(payload.odds) ? payload.odds : [];
+  const map = new Map();
+
+  for(const r of rows){
+    if(!r || typeof r !== "object") continue;
+
+    let home = cleanTeamName(r.home);
+    let away = cleanTeamName(r.away);
+
+    if(!home || !away) continue;
+    if(looksLikeMarketText(home) || looksLikeMarketText(away)) continue;
+
+    // Canlı skor parçalarını ayrıca temizle.
+    home = home.replace(/^\(\d+\)\s*/,"").replace(/\s*\(\d+\)$/,"").trim();
+    away = away.replace(/^\(\d+\)\s*/,"").replace(/\s*\(\d+\)$/,"").trim();
+
+    const m = {
+      date: "",
+      league: "Lig",
+      home,
+      away,
+      ms1: num(r.ms1),
+      x: num(r.x),
+      ms2: num(r.ms2),
+      alt25: num(r.alt25),
+      ust25: num(r.ust25),
+      homeScore: num(r.homeScore ?? r.home_score ?? r.scoreHome ?? r.ftHome),
+      awayScore: num(r.awayScore ?? r.away_score ?? r.scoreAway ?? r.ftAway),
+      scoreText: r.score ?? r.ft ?? r.result ?? r.fullTime ?? ""
+    };
+
+    // En az 2 adet 1-X-2 oranı olmalı.
+    if([m.ms1,m.x,m.ms2].filter(v=>v!==null).length < 2) continue;
+
+    const key = canonicalPair(home,away);
+    if(!key || key==="__") continue;
+
+    if(!map.has(key)){
+      map.set(key,m);
+    }else{
+      const old = map.get(key);
+      if(old.ms1===null && m.ms1!==null) old.ms1=m.ms1;
+      if(old.x===null && m.x!==null) old.x=m.x;
+      if(old.ms2===null && m.ms2!==null) old.ms2=m.ms2;
+      if(old.alt25===null && m.alt25!==null) old.alt25=m.alt25;
+      if(old.ust25===null && m.ust25!==null) old.ust25=m.ust25;
+    }
+  }
+
+  return [...map.values()];
+}
+
+function finalCleanMatches(list){
+  const map=new Map();
+  for(const raw of (list||[])){
+    if(!raw) continue;
+    const m={...raw};
+    m.home=cleanTeamName(m.home);
+    m.away=cleanTeamName(m.away);
+    if(!m.home||!m.away) continue;
+    if(looksLikeMarketText(m.home)||looksLikeMarketText(m.away)) continue;
+    const key=canonicalPair(m.home,m.away);
+    if(!key||key==="__") continue;
+
+    const prev=map.get(key);
+    if(!prev){
+      map.set(key,m);
+    }else{
+      if(prev.ms1==null && m.ms1!=null) prev.ms1=m.ms1;
+      if(prev.x==null && m.x!=null) prev.x=m.x;
+      if(prev.ms2==null && m.ms2!=null) prev.ms2=m.ms2;
+    }
+  }
+  return [...map.values()].filter(m=>[m.ms1,m.x,m.ms2].filter(v=>v!=null).length>=2);
+}
+
+
+
+function compactTeamName(v){
+  return canonicalTeam(v)
+    .replace(/\b(fc|cf|sc|ac|fk|sk|club|deportivo|sporting|athletic|atletico)\b/g," ")
+    .replace(/\s+/g," ").trim();
+}
+function teamTokens(v){
+  return compactTeamName(v).split(" ").filter(x=>x.length>=2);
+}
+function teamMatchScore(a,b){
+  const aa=compactTeamName(a), bb=compactTeamName(b);
+  if(!aa||!bb) return 0;
+  if(aa===bb) return 100;
+  if(aa.includes(bb)||bb.includes(aa)) return 90;
+  const A=new Set(teamTokens(aa)), B=new Set(teamTokens(bb));
+  let hit=0;
+  A.forEach(x=>{if(B.has(x)) hit++;});
+  const denom=Math.max(1,Math.min(A.size,B.size));
+  return Math.round(hit/denom*80);
+}
+function bestResultMatch(pred, results){
+  let best=null, bestScore=0;
+  for(const m of (results||[])){
+    const direct=teamMatchScore(pred.home,m.home)+teamMatchScore(pred.away,m.away);
+    const reverse=teamMatchScore(pred.home,m.away)+teamMatchScore(pred.away,m.home);
+    const score=Math.max(direct,reverse);
+    if(score>bestScore){bestScore=score;best=m;}
+  }
+  return bestScore>=120 ? best : null;
+}
+
+const ODDS_HISTORY_KEY="orananaliz_odds_history_v1";
+
+function loadOddsHistory(){
+  try{return JSON.parse(localStorage.getItem(ODDS_HISTORY_KEY)||"{}")||{};}
+  catch(e){return {};}
+}
+function saveOddsHistory(h){
+  localStorage.setItem(ODDS_HISTORY_KEY,JSON.stringify(h));
+}
+
+function cleanupOldOddsHistory(){
+  const h=loadOddsHistory();
+  const keep=new Set();
+  for(let i=0;i<14;i++) keep.add(isoDateOffset(-i));
+  Object.keys(h).forEach(date=>{if(!keep.has(date)) delete h[date];});
+  saveOddsHistory(h);
+}
+
+function snapshotOdds(){
+  cleanupOldOddsHistory();
+  if(!liveMatches.length) return;
+  const h=loadOddsHistory();
+  const date=todayISO();
+  if(!h[date]) h[date]={};
+  const now=Date.now();
+
+  liveMatches.forEach(m=>{
+    const key=matchKey(m);
+    if(!h[date][key]) h[date][key]=[];
+    const arr=h[date][key];
+    const last=arr[arr.length-1];
+
+    const snap={t:now,ms1:m.ms1,x:m.x,ms2:m.ms2};
+    if(!last || last.ms1!==snap.ms1 || last.x!==snap.x || last.ms2!==snap.ms2){
+      arr.push(snap);
+      if(arr.length>24) arr.splice(0,arr.length-24);
+    }
+  });
+  saveOddsHistory(h);
+}
+function oddsMovement(m){
+  const h=loadOddsHistory();
+  const arr=(((h[todayISO()]||{})[matchKey(m)])||[]);
+  if(arr.length<2) return null;
+  const first=arr[0], last=arr[arr.length-1];
+  const diff=(a,b)=>(a==null||b==null)?null:Number((b-a).toFixed(2));
+  return {
+    count:arr.length,
+    ms1:diff(first.ms1,last.ms1),
+    x:diff(first.x,last.x),
+    ms2:diff(first.ms2,last.ms2),
+    firstTime:first.t,lastTime:last.t
+  };
+}
+function movementHTML(label,diff){
+  if(diff===null) return '<div class="movement-box"><small>'+label+'</small><br><span class="movement-flat">—</span></div>';
+  const cls=diff<0?"movement-down":diff>0?"movement-up":"movement-flat";
+  const arrow=diff<0?"↓":diff>0?"↑":"→";
+  return '<div class="movement-box"><small>'+label+'</small><br><span class="'+cls+'">'+arrow+' '+(diff>0?'+':'')+diff.toFixed(2)+'</span></div>';
+}
+
+const HISTORY_KEY="orananaliz_prediction_history_v1";
+
+function isoDateOffset(days){
+  const d=new Date();
+  d.setDate(d.getDate()+days);
+  const p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+}
+function loadHistory(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"{}")||{};}
+  catch(e){return {};}
+}
+function saveHistory(h){
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+}
+function resultScores(m){
+  let hs=m.homeScore, as=m.awayScore;
+  if(hs!==null && hs!==undefined && as!==null && as!==undefined) return [Number(hs),Number(as)];
+  const t=String(m.scoreText||"").match(/(\d+)\s*[-:]\s*(\d+)/);
+  return t ? [Number(t[1]),Number(t[2])] : null;
+}
+function mainPredictionWon(pred,hs,as){
+  if(pred==="MS1") return hs>as;
+  if(pred==="MS2") return as>hs;
+  if(pred==="1X") return hs>=as;
+  if(pred==="X2") return as>=hs;
+  if(pred==="X") return hs===as;
+  return null;
+}
+function goalPredictionWon(pred,hs,as){
+  const total=hs+as;
+  if(pred==="2.5 ÜST") return total>=3;
+  if(pred==="2.5 ALT") return total<=2;
+  return null;
+}
+function saveTodayPredictions(){
+  if(!liveMatches.length) return;
+  const date=todayISO();
+  const h=loadHistory();
+  const rows=liveMatches.map(m=>{
+    const p=predictionFor(m);
+    return {
+      home:m.home,away:m.away,league:m.league||"Lig",
+      ms1:m.ms1,x:m.x,ms2:m.ms2,
+      main:p.main,alternative:p.alt,goal:p.goal,confidence:p.confidence,
+      status:"pending",goalStatus:"pending",score:""
+    };
+  });
+  h[date]={date,createdAt:Date.now(),matches:rows};
+  saveHistory(h);
+}
+function mergeResultsIntoHistory(date,resultMatches){
+  const h=loadHistory();
+  if(!h[date] || !Array.isArray(h[date].matches)) return false;
+
+  h[date].matches.forEach(p=>{
+    const m=bestResultMatch(p,resultMatches);
+    if(!m) return;
+    const sc=resultScores(m);
+    if(!sc) return;
+    const [hs,as]=sc;
+
+    // If reverse team order matched better, flip score.
+    const direct=teamMatchScore(p.home,m.home)+teamMatchScore(p.away,m.away);
+    const reverse=teamMatchScore(p.home,m.away)+teamMatchScore(p.away,m.home);
+    const ph=reverse>direct ? as : hs;
+    const pa=reverse>direct ? hs : as;
+
+    p.score=ph+"-"+pa;
+    const w=mainPredictionWon(p.main,ph,pa);
+    p.status=w===null?"pending":(w?"won":"lost");
+    const gw=goalPredictionWon(p.goal,ph,pa);
+    p.goalStatus=gw===null?"pending":(gw?"won":"lost");
+  });
+  saveHistory(h);
+  return true;
+}
+function historyDayStats(day){
+  const rows=(day&&day.matches)||[];
+  const decided=rows.filter(x=>x.status==="won"||x.status==="lost");
+  const won=rows.filter(x=>x.status==="won").length;
+  const lost=rows.filter(x=>x.status==="lost").length;
+  const pending=rows.length-decided.length;
+  const pct=decided.length?Math.round(won/decided.length*100):0;
+  return {total:rows.length,won,lost,pending,pct};
+}
+function renderHistory(){
+  const h=loadHistory();
+  const dates=Object.keys(h).sort().reverse();
+  const summary=$("historySummary"), box=$("historyResults");
+  if(!dates.length){
+    summary.textContent="Henüz geçmiş tahmin kaydı yok. Bugünün maçlarını yenilediğinde otomatik kaydedilecek.";
+    box.innerHTML="";
+    return;
+  }
+
+  const y=isoDateOffset(-1);
+  const yd=h[y];
+  if(yd){
+    const st=historyDayStats(yd);
+    summary.textContent="Dün ("+y+"): "+st.total+" tahmin · "+st.won+" geldi · "+st.lost+" gelmedi · "+st.pending+" bekliyor · Başarı %"+st.pct;
+  }else{
+    summary.textContent="Dün için kayıt yok. Toplam kayıtlı gün: "+dates.length;
+  }
+
+  box.innerHTML=dates.slice(0,14).map(date=>{
+    const day=h[date], st=historyDayStats(day);
+    const rows=(day.matches||[]).map(x=>{
+      const icon=x.status==="won"?"✅":x.status==="lost"?"❌":"⏳";
+      return '<div class="match" style="margin-top:8px">'+
+        '<div class="teams">'+esc(x.home)+' — '+esc(x.away)+'</div>'+
+        '<div class="league">'+icon+' Ana: '+esc(x.main)+' · Güven %'+esc(x.confidence)+(x.score?' · Skor '+esc(x.score):'')+'</div>'+
+        '<div class="league">Gol: '+esc(x.goal)+' · '+(x.goalStatus==="won"?"✅":x.goalStatus==="lost"?"❌":"⏳")+'</div>'+
+      '</div>';
+    }).join("");
+    return '<div class="card" style="padding:12px;margin-top:12px">'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center">'+
+      '<b>'+esc(date)+'</b><span class="badge">'+st.won+'/'+(st.won+st.lost)+' · %'+st.pct+'</span></div>'+rows+'</div>';
+  }).join("");
+}
+
+function score(m){
+  let s=50;
+  if(m.ms1!==null){
+    if(m.ms1>=1.20&&m.ms1<=1.60)s+=22;
+    else if(m.ms1<=1.85)s+=14;
+    else if(m.ms1<=2.10)s+=7;
+  }
+  if(m.x!==null&&m.ms2!==null&&m.ms1!==null){
+    const gap=Math.min(m.x,m.ms2)-m.ms1;
+    if(gap>=1.4)s+=12; else if(gap>=.8)s+=7;
+  }
+  return Math.max(0,Math.min(95,Math.round(s)));
+}
+
+
+function getFormPoints(f){
+  if(!f) return null;
+  if(f.points!==undefined && f.points!==null) return Number(f.points);
+  const w=Number(f.wins||0), d=Number(f.draws||0);
+  return w*3+d;
+}
+function formGames(f){
+  if(!f) return 0;
+  return Number(f.games||((f.last5&&f.last5.length)||0));
+}
+function avgGoalsForm(f){
+  if(!f) return null;
+  const g=formGames(f);
+  if(!g) return null;
+  return (Number(f.goalsFor||0)+Number(f.goalsAgainst||0))/g;
+}
+function homeAwayEdge(m){
+  // If separate home/away stats become available later, use them.
+  // For now, use current form objects without fabricating data.
+  if(!m.form||!m.form.home||!m.form.away) return 0;
+  const hp=getFormPoints(m.form.home), ap=getFormPoints(m.form.away);
+  if(hp===null||ap===null) return 0;
+  return hp-ap;
+}
+function historicalPredictionStats(m){
+  const h=loadHistory();
+  const p=predictionForBase ? predictionForBase(m) : null;
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      const similarConf=Math.abs(Number(r.confidence||0)-Number(score(m)||0))<=5;
+      const sameMain=!p || !r.main || r.main===p.main;
+      if(similarConf && sameMain && (r.status==="won"||r.status==="lost")){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?Math.round(won/total*100):null};
+}
+
+function leaguePerformanceStats(){
+  const h=loadHistory(), map={};
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status!=="won" && r.status!=="lost") return;
+      const league=r.league||"Lig";
+      if(!map[league]) map[league]={league,total:0,won:0};
+      map[league].total++;
+      if(r.status==="won") map[league].won++;
+    });
+  });
+  return Object.values(map).map(x=>({...x,pct:x.total?Math.round(x.won/x.total*100):0}))
+    .sort((a,b)=>b.total-a.total||b.pct-a.pct);
+}
+
+function predictionTypeStats(){
+  const h=loadHistory(), map={};
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status!=="won"&&r.status!=="lost") return;
+      const key=r.main||"Diğer";
+      if(!map[key]) map[key]={type:key,total:0,won:0};
+      map[key].total++;
+      if(r.status==="won") map[key].won++;
+    });
+  });
+  return Object.values(map).map(x=>({...x,pct:x.total?Math.round(x.won/x.total*100):0}))
+    .sort((a,b)=>b.total-a.total||b.pct-a.pct);
+}
+function renderPredictionTypePerformance(){
+  const box=$("predictionTypeGrid");
+  if(!box) return;
+  const list=predictionTypeStats().slice(0,8);
+  box.innerHTML=list.length
+    ? list.map(x=>'<div class="type-box"><span>'+esc(x.type)+'</span><b>%'+x.pct+'</b><div class="league">'+x.won+'/'+x.total+' başarılı</div></div>').join('')
+    : '<div class="notice" style="grid-column:1/-1">Henüz sonuçlanmış tahmin yok.</div>';
+}
+function confidenceBandStats(){
+  const bands=[
+    {label:"%65–74",min:65,max:74,total:0,won:0},
+    {label:"%75–84",min:75,max:84,total:0,won:0},
+    {label:"%85+",min:85,max:100,total:0,won:0}
+  ];
+  const h=loadHistory();
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status!=="won"&&r.status!=="lost") return;
+      const c=Number(r.confidence||0);
+      const b=bands.find(x=>c>=x.min&&c<=x.max);
+      if(!b) return;
+      b.total++;
+      if(r.status==="won") b.won++;
+    });
+  });
+  return bands.map(b=>({...b,pct:b.total?Math.round(b.won/b.total*100):0}));
+}
+
+
+function latestResolvedDay(){
+  const h=loadHistory();
+  const dates=Object.keys(h).sort().reverse();
+  for(const d of dates){
+    const rows=((h[d]&&h[d].matches)||[]);
+    if(rows.some(r=>r.status==="won"||r.status==="lost"||r.goalStatus==="won"||r.goalStatus==="lost")){
+      return {date:d,rows};
+    }
+  }
+  return null;
+}
+
+function renderWeeklyPerformance(){
+  const bars=$("weeklyBars"), sum=$("weeklySummary");
+  if(!bars||!sum) return;
+
+  const h=loadHistory();
+  const dates=Object.keys(h).sort().slice(-7);
+  if(!dates.length){
+    bars.innerHTML="";
+    sum.textContent="Henüz yeterli geçmiş veri yok.";
+    return;
+  }
+
+  let total=0,won=0;
+  bars.innerHTML=dates.map(date=>{
+    const rows=((h[date]&&h[date].matches)||[]).filter(r=>r.status==="won"||r.status==="lost");
+    const w=rows.filter(r=>r.status==="won").length;
+    const pct=rows.length?Math.round(w/rows.length*100):0;
+    total+=rows.length;won+=w;
+    return '<div class="week-col">'+
+      '<div class="week-bar" style="height:'+Math.max(4,pct)+'px" title="%'+pct+'"></div>'+
+      '<div>%'+pct+'</div><div>'+date.slice(5)+'</div>'+
+    '</div>';
+  }).join("");
+
+  const overall=total?Math.round(won/total*100):0;
+  sum.textContent=total
+    ? "Son 7 günde "+won+"/"+total+" başarılı · genel başarı %"+overall+"."
+    : "Son 7 günde sonuçlanmış tahmin yok.";
+}
+
+function renderDailyReport(){
+  const day=latestResolvedDay();
+  const txt=$("dailyReportText");
+  if(!day){
+    $("dailyMsPct").textContent="%0"; $("dailyGoalPct").textContent="%0";
+    $("dailyMsWon").textContent="0"; $("dailyGoalWon").textContent="0";
+    txt.textContent="Henüz sonuçlanmış günlük kayıt yok.";
+    return;
+  }
+  const ms=day.rows.filter(r=>r.status==="won"||r.status==="lost");
+  const mw=ms.filter(r=>r.status==="won").length;
+  const gl=day.rows.filter(r=>r.goalStatus==="won"||r.goalStatus==="lost");
+  const gw=gl.filter(r=>r.goalStatus==="won").length;
+  const mp=ms.length?Math.round(mw/ms.length*100):0;
+  const gp=gl.length?Math.round(gw/gl.length*100):0;
+  $("dailyMsPct").textContent="%"+mp; $("dailyGoalPct").textContent="%"+gp;
+  $("dailyMsWon").textContent=mw; $("dailyGoalWon").textContent=gw;
+  txt.textContent=day.date+" · MS "+mw+"/"+ms.length+" (%"+mp+") · Gol "+gw+"/"+gl.length+" (%"+gp+")";
+}
+
+function renderSnapshotCount(){
+  const el=$("snapshotCount");
+  if(!el) return;
+  const h=loadOddsHistory();
+  const day=h[todayISO()]||{};
+  const counts=Object.values(day).map(arr=>Array.isArray(arr)?arr.length:0);
+  const max=counts.length?Math.max(...counts):0;
+  const tracked=counts.filter(x=>x>0).length;
+  el.textContent=tracked+" maç için oran kaydı var · en fazla "+max+" farklı snapshot.";
+}
+
+function renderMarketMemory(){
+  const box=$("marketMemorySummary");
+  if(!box) return;
+  if(!liveMatches.length){box.textContent="Geçmiş örnek biriktikçe otomatik çalışacak.";return;}
+  const best=[...liveMatches].sort((a,b)=>safeThreeScore(b)-safeThreeScore(a))[0];
+  if(!best){box.textContent="Uygun aday yok.";return;}
+  const mem=oddsBandMemory(best);
+  box.textContent=mem.total
+    ? (best.league||"Lig")+" · favori oran bandı "+mem.band+" · "+mem.won+"/"+mem.total+" başarılı · %"+mem.pct
+    : (best.league||"Lig")+" · "+mem.band+" bandında henüz yeterli geçmiş örnek yok.";
+}
+
+
+function renderAccuracyAudit(){
+  const r=reliabilityMaturity();
+  const resolved=Math.max(r.msT,r.goalT);
+  if($("auditResolved")) $("auditResolved").textContent=resolved;
+  if($("auditMsPct")) $("auditMsPct").textContent="%"+r.msPct;
+  if($("auditGoalPct")) $("auditGoalPct").textContent="%"+r.goalPct;
+
+  const el=$("auditSummary");
+  if(!el) return;
+
+  if(r.msT<5){
+    el.innerHTML='<b class="audit-warn">Veri yetersiz.</b><br>Henüz yalnız '+r.msT+' sonuçlanmış MS tahmini var. Sistem yüksek güven yüzdelerini geçici olarak sınırlar.';
+  }else if(r.msT<20){
+    el.innerHTML='<b class="audit-warn">Erken dönem.</b><br>'+r.msT+' sonuçlanmış MS tahmini · başarı %'+r.msPct+'. Güven puanları hâlâ temkinli kalibre edilir.';
+  }else if(r.msT<50){
+    el.innerHTML='<b class="audit-good">Model gelişiyor.</b><br>'+r.msT+' sonuç · MS %'+r.msPct+' · Gol %'+r.goalPct+' · Güçlü tahminler %'+r.strongPct+'.';
+  }else{
+    el.innerHTML='<b class="audit-good">Model olgun veri seviyesinde.</b><br>'+r.msT+' sonuç · MS %'+r.msPct+' · Gol %'+r.goalPct+' · Güçlü tahminler %'+r.strongPct+'.';
+  }
+}
+
+function renderCalibrationSummary(){
+  const el=$("calibrationSummary");
+  if(!el) return;
+  const h=loadHistory();
+  let rows=[];
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status==="won"||r.status==="lost"){
+        rows.push({conf:Number(r.confidence||0),won:r.status==="won"});
+      }
+    });
+  });
+  if(rows.length<5){
+    el.textContent="Henüz "+rows.length+" sonuçlanmış tahmin var. Kalibrasyon için en az 5, daha sağlıklı sonuç için 20+ kayıt bekleniyor.";
+    return;
+  }
+  const avgModel=Math.round(rows.reduce((a,r)=>a+r.conf,0)/rows.length);
+  const actual=Math.round(rows.filter(r=>r.won).length/rows.length*100);
+  const gap=actual-avgModel;
+  el.textContent=rows.length+" sonuçta ortalama model güveni %"+avgModel+", gerçek başarı %"+actual+
+    ". Kalibrasyon farkı "+(gap>=0?"+":"")+gap+" puan.";
+}
+
+function renderConfidenceBands(){
+  const box=$("confidenceBandResults");
+  if(!box) return;
+  const bands=confidenceBandStats();
+  box.innerHTML='<table class="band-table"><thead><tr><th>Güven</th><th>Gelen</th><th>Toplam</th><th>Gerçek başarı</th></tr></thead><tbody>'+
+    bands.map(b=>'<tr><td>'+b.label+'</td><td>'+b.won+'</td><td>'+b.total+'</td><td><b>'+(b.total?'%'+b.pct:'—')+'</b></td></tr>').join('')+
+    '</tbody></table>';
+}
+
+function renderLeaguePerformance(){
+  const box=$("leaguePerformance");
+  if(!box) return;
+  const list=leaguePerformanceStats().filter(x=>x.total>=2).slice(0,10);
+  box.innerHTML=list.length
+    ? '<table class="league-table"><thead><tr><th>Lig</th><th>Gelen</th><th>Toplam</th><th>Başarı</th></tr></thead><tbody>'+
+      list.map(x=>'<tr><td>'+esc(x.league)+'</td><td>'+x.won+'</td><td>'+x.total+'</td><td><b>%'+x.pct+'</b></td></tr>').join('')+
+      '</tbody></table>'
+    : '<div class="notice" style="margin-top:10px">Lig bazlı oran için henüz yeterli sonuçlanmış tahmin yok.</div>';
+}
+function globalOutcomeWeights(){
+  const h=loadHistory();
+  let msT=0,msW=0,goalT=0,goalW=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status==="won"||r.status==="lost"){msT++;if(r.status==="won")msW++;}
+      if(r.goalStatus==="won"||r.goalStatus==="lost"){goalT++;if(r.goalStatus==="won")goalW++;}
+    });
+  });
+  const msPct=msT?msW/msT:0.5, goalPct=goalT?goalW/goalT:0.5;
+  return {
+    msWeight:msT>=10?Math.max(.85,Math.min(1.15,1+(msPct-.5)*.3)):1,
+    goalWeight:goalT>=10?Math.max(.85,Math.min(1.15,1+(goalPct-.5)*.3)):1,
+    msT,goalT,msPct,goalPct
+  };
+}
+
+
+function globalResolvedStats(){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status==="won"||r.status==="lost"){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?won/total:0.5};
+}
+function typeResolvedStats(type){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.main!==type) return;
+      if(r.status==="won"||r.status==="lost"){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?won/total:null};
+}
+function leagueResolvedStats(league){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if((r.league||"Lig")!==(league||"Lig")) return;
+      if(r.status==="won"||r.status==="lost"){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?won/total:null};
+}
+function bandResolvedStats(conf){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      const c=Number(r.confidence||0);
+      if(Math.abs(c-conf)>5) return;
+      if(r.status==="won"||r.status==="lost"){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?won/total:null};
+}
+function bayesBlend(successPct,total,priorPct,priorWeight){
+  if(successPct===null||successPct===undefined||!total) return priorPct;
+  return ((successPct*total)+(priorPct*priorWeight))/(total+priorWeight);
+}
+
+function favoriteOdd(m){
+  const vals=[m.ms1,m.ms2].filter(v=>v!==null&&Number.isFinite(v));
+  return vals.length?Math.min(...vals):null;
+}
+function oddsBandMemory(m){
+  const fav=favoriteOdd(m);
+  if(fav===null) return {total:0,won:0,pct:null,band:"—"};
+  const lo=Math.floor(fav*10)/10;
+  const hi=lo+0.1;
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if((r.league||"Lig")!==(m.league||"Lig")) return;
+      const rfav=Math.min(...[Number(r.ms1),Number(r.ms2)].filter(Number.isFinite));
+      if(!Number.isFinite(rfav) || rfav<lo || rfav>=hi) return;
+      if(r.status==="won"||r.status==="lost"){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?Math.round(won/total*100):null,band:lo.toFixed(2)+"–"+hi.toFixed(2)};
+}
+function marketSpecificStats(type){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(type==="goal"){
+        if(r.goalStatus==="won"||r.goalStatus==="lost"){
+          total++; if(r.goalStatus==="won") won++;
+        }
+      }else{
+        if(r.status==="won"||r.status==="lost"){
+          total++; if(r.status==="won") won++;
+        }
+      }
+    });
+  });
+  return {total,won,pct:total?won/total:null};
+}
+function adaptiveMarketFactor(type){
+  const st=marketSpecificStats(type);
+  if(st.total<10) return 1;
+  const pct=st.pct;
+  return Math.max(.88,Math.min(1.12,1+(pct-.5)*.28));
+}
+
+
+function reliabilityMaturity(){
+  const h=loadHistory();
+  let msT=0,msW=0,goalT=0,goalW=0,strongT=0,strongW=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status==="won"||r.status==="lost"){
+        msT++;
+        if(r.status==="won") msW++;
+        if(Number(r.confidence||0)>=75){
+          strongT++;
+          if(r.status==="won") strongW++;
+        }
+      }
+      if(r.goalStatus==="won"||r.goalStatus==="lost"){
+        goalT++;
+        if(r.goalStatus==="won") goalW++;
+      }
+    });
+  });
+  const maturity=msT>=50?"olgun":msT>=20?"gelisiyor":msT>=5?"erken":"yetersiz";
+  return {
+    msT,msW,msPct:msT?Math.round(msW/msT*100):0,
+    goalT,goalW,goalPct:goalT?Math.round(goalW/goalT*100):0,
+    strongT,strongW,strongPct:strongT?Math.round(strongW/strongT*100):0,
+    maturity
+  };
+}
+function confidenceSampleCap(value){
+  const r=reliabilityMaturity();
+  if(r.msT<5) return Math.min(value,84);
+  if(r.msT<20) return Math.min(value,89);
+  if(r.msT<50) return Math.min(value,93);
+  return value;
+}
+
+function calibratedConfidence(m,raw){
+  const p=predictionForBase?predictionForBase(m):predictionFor(m);
+  const global=globalResolvedStats();
+  let est=(Number(raw)||50)/100;
+
+  const band=bandResolvedStats(Number(raw)||50);
+  const type=typeResolvedStats(p.main);
+  const league=leagueResolvedStats(m.league||"Lig");
+
+  // Shrink noisy samples toward overall historical rate, then blend with model score.
+  const prior=global.total>=10?global.pct:0.5;
+  const bandEst=bayesBlend(band.pct,band.total,prior,8);
+  const typeEst=bayesBlend(type.pct,type.total,prior,10);
+  const leagueEst=bayesBlend(league.pct,league.total,prior,12);
+
+  let histWeight=0;
+  let histSum=0;
+  if(band.total>=3){histSum+=bandEst*0.45;histWeight+=0.45;}
+  if(type.total>=3){histSum+=typeEst*0.35;histWeight+=0.35;}
+  if(league.total>=3){histSum+=leagueEst*0.20;histWeight+=0.20;}
+
+  if(histWeight>0){
+    const hist=histSum/histWeight;
+    const sample=Math.min(1,(band.total+type.total+league.total)/40);
+    const blend=Math.min(0.55,0.15+sample*0.40);
+    est=est*(1-blend)+hist*blend;
+  }
+
+  return {
+    value:confidenceSampleCap(Math.max(35,Math.min(96,Math.round(est*100)))),
+    raw:Math.round(Number(raw)||50),
+    samples:(band.total||0)+(type.total||0)+(league.total||0),
+    band,type,league,global
+  };
+}
+
+function advancedEngine(m){
+  const base=score(m);
+  let formAdj=0, venueAdj=0, goalAdj=0, histAdj=0;
+  const mem=oddsBandMemory(m);
+
+  if(m.form&&m.form.home&&m.form.away){
+    const hp=getFormPoints(m.form.home), ap=getFormPoints(m.form.away);
+    if(hp!==null&&ap!==null){
+      const d=hp-ap;
+      if(m.ms1!==null&&m.ms2!==null){
+        const favHome=m.ms1<m.ms2;
+        if(favHome){
+          if(d>=6) formAdj+=8;
+          else if(d>=3) formAdj+=4;
+          else if(d<=-5) formAdj-=7;
+        }else{
+          if(d<=-6) formAdj+=8;
+          else if(d<=-3) formAdj+=4;
+          else if(d>=5) formAdj-=7;
+        }
+      }
+      venueAdj=Math.max(-4,Math.min(4,Math.round(d/3)));
+    }
+
+    const hg=avgGoalsForm(m.form.home), ag=avgGoalsForm(m.form.away);
+    if(hg!==null&&ag!==null){
+      const avg=(hg+ag)/2;
+      if(avg>=3.0) goalAdj+=6;
+      else if(avg>=2.6) goalAdj+=3;
+      else if(avg<=2.0) goalAdj-=3;
+    }
+  }
+
+  const hist=historicalPredictionStats(m);
+  if(hist.total>=8){
+    if(hist.pct>=70) histAdj+=6;
+    else if(hist.pct>=60) histAdj+=3;
+    else if(hist.pct<45) histAdj-=6;
+  }else if(hist.total>=4){
+    if(hist.pct>=70) histAdj+=3;
+    else if(hist.pct<40) histAdj-=3;
+  }
+
+  if(mem.total>=5){
+    if(mem.pct>=70) histAdj+=5;
+    else if(mem.pct>=60) histAdj+=2;
+    else if(mem.pct<40) histAdj-=5;
+  }
+  const total=Math.max(35,Math.min(96,Math.round(base+formAdj+venueAdj+histAdj)));
+  return {base,formAdj,venueAdj,goalAdj,histAdj,hist,mem,total};
+}
+
+function predictionForBase(m){
+  const o1=m.ms1, ox=m.x, o2=m.ms2, u=m.ust25, a=m.alt25;
+  let main="Temkinli", alt="—", goal="—";
+
+  if(o1!==null && ox!==null && o2!==null){
+    const min = Math.min(o1,o2);
+    if(o1<=1.55 && o2>=3.20) main="MS1";
+    else if(o2<=1.55 && o1>=3.20) main="MS2";
+    else if(o1<=1.85 && o2>=3.00) main="1X";
+    else if(o2<=1.85 && o1>=3.00) main="X2";
+    else if(o1<o2) main="1X";
+    else if(o2<o1) main="X2";
+  }
+
+  if(main==="MS1") alt="1X";
+  else if(main==="MS2") alt="X2";
+  else if(main==="1X" && o1!==null && o1<=1.80) alt="MS1";
+  else if(main==="X2" && o2!==null && o2<=1.80) alt="MS2";
+
+  if(u!==null && a!==null){
+    if(u<a) goal="2.5 ÜST";
+    else if(a<u) goal="2.5 ALT";
+  } else if(u!==null && u<=1.90) goal="2.5 ÜST";
+  else if(a!==null && a<=1.90) goal="2.5 ALT";
+
+  return {main, alt, goal, confidence:score(m)};
+}
+
+function precisionConfidence(m){
+  const base=score(m);
+  const adv=advancedEngine(m);
+  const w=globalOutcomeWeights();
+  const p=predictionForBase ? predictionForBase(m) : null;
+  let ms=adv.total*w.msWeight*adaptiveMarketFactor('ms'), goal=(base+adv.goalAdj)*w.goalWeight*adaptiveMarketFactor('goal');
+
+  if(m.ms1!==null&&m.ms2!==null){
+    const gap=Math.abs(m.ms1-m.ms2);
+    ms += Math.min(9, gap*3.2);
+    if(gap<0.35) ms-=9;
+  }
+  if(m.x!==null && m.x<3.05) ms-=3;
+
+  if(m.ust25!==null&&m.alt25!==null){
+    const ggap=Math.abs(m.ust25-m.alt25);
+    goal += Math.min(10,ggap*10);
+    if(ggap<0.12) goal-=7;
+  } else goal-=5;
+
+  const hist=historicalBandStats(base);
+  if(hist.total>=5){
+    const adj=(hist.pct-50)*0.10;
+    ms+=adj; goal+=adj;
+  }
+
+  const jitter=((Math.round((Number(m.ms1||0)*100)+(Number(m.ms2||0)*100)+(Number(m.x||0)*100)))%7)-3;
+  ms+=jitter*.45;
+  goal-=jitter*.35;
+
+  const rawMs=Math.max(35,Math.min(96,Math.round(ms)));
+  const rawGoal=Math.max(35,Math.min(96,Math.round(goal)));
+  const calMs=calibratedConfidence(m,rawMs);
+  const calGoal=calibratedConfidence(m,rawGoal);
+  return {ms:calMs.value,goal:calGoal.value,hist,rawMs,rawGoal,calMs,calGoal};
+}
+
+function riskLabel(m){
+  const c=precisionConfidence(m);
+  let reasons=[];
+  if(c.ms<65) reasons.push("MS güveni düşük");
+  if(c.goal<65) reasons.push("gol güveni düşük");
+  if(m.ms1!==null&&m.ms2!==null&&Math.abs(m.ms1-m.ms2)<0.35) reasons.push("1/2 oranları çok yakın");
+  return reasons;
+}
+
+
+function predictionFor(m){
+  const p=predictionForBase(m);
+  const c=precisionConfidence(m);
+  return {...p, msConfidence:c.ms, goalConfidence:c.goal};
+}
+
+
+
+function predictionReasons(m){
+  const reasons=[];
+  const sc=score(m);
+
+  if(m.ms1!==null && m.ms2!==null){
+    if(m.ms1<=1.60 && m.ms2>=3.20) reasons.push("Ev sahibi oran avantajı güçlü");
+    else if(m.ms2<=1.60 && m.ms1>=3.20) reasons.push("Deplasman oran avantajı güçlü");
+    else if(Math.abs(m.ms1-m.ms2)>=1.10) reasons.push("1X2 oran dağılımı belirgin");
+  }
+
+  if(m.x!==null && m.ms1!==null && m.ms2!==null){
+    const fav=Math.min(m.ms1,m.ms2);
+    if(m.x-fav>=1.25) reasons.push("Beraberlik oranı favoriden belirgin yüksek");
+  }
+
+  if(m.ust25!==null && m.alt25!==null){
+    if(m.ust25<m.alt25) reasons.push("2.5 ÜST oranı golü destekliyor");
+    else if(m.alt25<m.ust25) reasons.push("2.5 ALT oranı düşük skoru destekliyor");
+  }
+
+  if(sc>=85) reasons.push("Çok yüksek güven puanı");
+  else if(sc>=75) reasons.push("Güçlü güven puanı");
+
+  if(!reasons.length) reasons.push("Oran dengesi temkinli değerlendirme veriyor");
+  return reasons.slice(0,3);
+}
+
+function topFiveRank(m){
+  const p=predictionFor(m);
+  let r=score(m)*10;
+
+  if(p.main==="MS1" || p.main==="MS2") r+=25;
+  else if(p.main==="1X" || p.main==="X2") r+=12;
+
+  if(p.goal!=="—") r+=8;
+
+  if(m.ms1!==null && m.x!==null && m.ms2!==null){
+    const sorted=[m.ms1,m.x,m.ms2].sort((a,b)=>a-b);
+    r+=Math.min(20,Math.round((sorted[1]-sorted[0])*10));
+  }
+  return r;
+}
+
+function renderTopFive(){
+  const summary=$("topFiveSummary");
+  const box=$("topFiveResults");
+  if(!liveMatches.length){
+    summary.textContent="Bugünü yenile dediğinde en iyi 5 aday burada çıkacak.";
+    box.innerHTML="";
+    return;
+  }
+
+  let pool=[...liveMatches].filter(m=>strictCandidate(m));
+  if(pool.length<5) pool=[...liveMatches].filter(m=>dataQuality(m).ok&&score(m)>=65);
+  const list=pool
+    .sort((a,b)=>topFiveRank(b)-topFiveRank(a))
+    .slice(0,5);
+
+  if(!list.length){
+    summary.textContent="Bugün yeterince güçlü aday bulunamadı.";
+    box.innerHTML="";
+    return;
+  }
+
+  summary.textContent="Bugün "+list.length+" öne çıkan aday var. Bunlar garanti değil; mevcut oran sinyallerine göre sıralandı.";
+
+  box.innerHTML=list.map((m,i)=>{
+    const p=predictionFor(m);
+    const rs=predictionReasons(m);
+    return '<div class="match" style="margin-top:10px">'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">'+
+        '<div><div class="league">#'+(i+1)+' · '+esc(m.league||"Lig")+'</div>'+
+        '<div class="teams">'+esc(m.home)+' — '+esc(m.away)+'</div></div>'+
+        '<div class="score">%'+score(m)+'</div>'+
+      '</div>'+
+      '<div style="margin-top:10px;padding:11px;border-radius:13px;background:#f9fafb;border:1px solid #e5e7eb">'+
+        '<div><b>🎯 '+esc(p.main)+'</b> · Gol: <b>'+esc(p.goal)+'</b></div>'+
+        '<div style="margin-top:6px;font-size:12px;color:#4b5563">'+
+          rs.map(x=>'• '+esc(x)).join('<br>')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+}
+
+
+
+function historicalBandStats(conf){
+  const h=loadHistory();
+  let total=0,won=0;
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      const c=Number(r.confidence||0);
+      if(Math.abs(c-conf)<=5 && (r.status==="won"||r.status==="lost")){
+        total++;
+        if(r.status==="won") won++;
+      }
+    });
+  });
+  return {total,won,pct:total?Math.round(won/total*100):0};
+}
+function confidenceBars(m){
+  const sc=score(m);
+  const oddsPart=Math.min(100,Math.max(0,Math.round(sc*0.75)));
+  const signalPart=Math.min(100,Math.max(0,Math.round((compactReasons(m).length/3)*100)));
+  const hist=historicalBandStats(sc);
+  const historyPart=hist.total?hist.pct:0;
+  return {oddsPart,signalPart,historyPart,hist};
+}
+function fakeTrendHeights(m){
+  const vals=[m.ms1,m.x,m.ms2].filter(v=>v!==null&&Number.isFinite(v));
+  if(!vals.length) return [20,30,25,35,28];
+  const base=Math.round((Math.max(...vals)-Math.min(...vals))*10)+12;
+  return [base,base+5,Math.max(8,base-3),base+7,base+2].map(x=>Math.min(28,x));
+}
+
+function detailHTML(m){
+  const p=predictionFor(m);
+  const reasons=compactReasons(m);
+  const favOdd=Math.min(...[m.ms1,m.ms2].filter(v=>v!==null));
+  const balance=(m.ms1!==null&&m.ms2!==null)?Math.abs(m.ms1-m.ms2).toFixed(2):"—";
+  const bars=confidenceBars(m);
+  const move=oddsMovement(m);
+  const trend=fakeTrendHeights(m);
+
+  return '<div class="detail-box" id="detail-'+encodeURIComponent(matchKey(m))+'">'+
+    '<div style="font-weight:900;margin-bottom:8px">📋 Maç Detayı</div>'+
+    '<div class="detail-grid">'+
+      '<div class="detail-item"><b>Ana tahmin</b><br>'+esc(p.main)+'</div>'+
+      '<div class="detail-item"><b>Gol tahmini</b><br>'+esc(p.goal)+'</div>'+
+      '<div class="detail-item"><b>Favori oran</b><br>'+(Number.isFinite(favOdd)?favOdd:"—")+'</div>'+
+      '<div class="detail-item"><b>Oran farkı</b><br>'+balance+'</div>'+
+    '</div>'+
+    '<div style="margin-top:12px"><b>Güven bileşenleri</b></div>'+
+    '<table class="mini-table">'+
+      '<tr><td>Oran sinyali</td><td style="width:48%"><div class="meter"><span style="width:'+bars.oddsPart+'%"></span></div></td><td>%'+bars.oddsPart+'</td></tr>'+
+      '<tr><td>Tahmin sinyali</td><td><div class="meter"><span style="width:'+bars.signalPart+'%"></span></div></td><td>%'+bars.signalPart+'</td></tr>'+
+      '<tr><td>Geçmiş benzer güven</td><td><div class="meter"><span style="width:'+bars.historyPart+'%"></span></div></td><td>'+(bars.hist.total?'%'+bars.historyPart:'—')+'</td></tr>'+
+    '</table>'+
+    '<div style="margin-top:10px"><b>Neden seçildi?</b><br>'+reasons.map(x=>'• '+esc(x)).join('<br>')+'</div>'+
+    '<div style="margin-top:12px"><b>Oran profili</b><div class="spark">'+trend.map(h=>'<span style="height:'+h+'px"></span>').join('')+'</div>'+
+    '<div style="font-size:11px;color:#6b7280;margin-top:4px">Bu mini görünüm anlık oran dağılımını temsil eder; gerçek zaman serisi değildir.</div></div>'+
+    '<div class="split-confidence"><div class="conf-box"><span>MS güveni</span><b>%'+precisionConfidence(m).ms+'</b></div><div class="conf-box"><span>Gol güveni</span><b>%'+precisionConfidence(m).goal+'</b></div></div>'+
+    (riskLabel(m).length?'<div class="risk-warn">⚠️ '+esc(riskLabel(m).join(" · "))+'</div>':'')+
+    '<div style="margin-top:12px"><b>📉 Gerçek oran hareketi</b></div>'+
+    (move
+      ? '<div class="movement-row">'+movementHTML("MS1",move.ms1)+movementHTML("X",move.x)+movementHTML("MS2",move.ms2)+'</div><div style="font-size:11px;color:#6b7280;margin-top:4px">'+move.count+' kayıt karşılaştırıldı.</div>'
+      : '<div style="font-size:11px;color:#6b7280;margin-top:6px">Henüz en az iki farklı oran kaydı yok.</div>')+
+    '<div style="margin-top:10px;color:#6b7280">Geçmiş başarı: '+(bars.hist.total?bars.hist.won+'/'+bars.hist.total+' · %'+bars.hist.pct:'henüz yeterli kayıt yok')+'</div>'+
+  +
+    '<div style="margin-top:12px"><b>🧠 Analiz motoru</b></div>'+
+    '<div class="engine-grid">'+
+      '<div class="engine-box"><span>Temel puan</span><b>%'+advancedEngine(m).base+'</b></div>'+
+      '<div class="engine-box"><span>Form katkısı</span><b>'+((advancedEngine(m).formAdj>=0?'+':'')+advancedEngine(m).formAdj)+'</b></div>'+
+      '<div class="engine-box"><span>Ev/deplasman etkisi</span><b>'+((advancedEngine(m).venueAdj>=0?'+':'')+advancedEngine(m).venueAdj)+'</b></div>'+
+      '<div class="engine-box"><span>Geçmiş oran/tahmin etkisi</span><b>'+((advancedEngine(m).histAdj>=0?'+':'')+advancedEngine(m).histAdj)+'</b></div>'+
+    '</div>'+
+    '<div style="margin-top:8px;font-size:12px;color:#6b7280">Gelişmiş toplam güven: <b>%'+advancedEngine(m).total+'</b>'+
+      (advancedEngine(m).hist.total?' · geçmiş örnek '+advancedEngine(m).hist.won+'/'+advancedEngine(m).hist.total:'')+
+    '</div>' +
+    '<div style="margin-top:12px"><b>🧪 Kendini kalibre eden güven</b></div>'+
+    '<div class="engine-grid">'+
+      '<div class="engine-box"><span>Ham MS güveni</span><b>%'+precisionConfidence(m).rawMs+'</b></div>'+
+      '<div class="engine-box"><span>Kalibre MS güveni</span><b>%'+precisionConfidence(m).ms+'</b></div>'+
+      '<div class="engine-box"><span>Ham gol güveni</span><b>%'+precisionConfidence(m).rawGoal+'</b></div>'+
+      '<div class="engine-box"><span>Kalibre gol güveni</span><b>%'+precisionConfidence(m).goal+'</b></div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:#6b7280;margin-top:6px">Geçmiş örnek sayısı arttıkça sistem model puanını gerçek başarı oranına daha fazla yaklaştırır. Az veride büyük düzeltme yapmaz.</div>' +
+    '<div style="margin-top:12px"><b>🧠 Lig + oran hafızası</b></div>'+
+    '<div style="font-size:12px;color:#6b7280;margin-top:5px">'+
+      (advancedEngine(m).mem.total
+        ? esc((m.league||"Lig")+" · "+advancedEngine(m).mem.band+" · "+advancedEngine(m).mem.won+"/"+advancedEngine(m).mem.total+" · %"+advancedEngine(m).mem.pct)
+        : 'Henüz bu lig/oran bandında yeterli geçmiş örnek yok.')+
+    '</div>' + '</div>';
+}
+
+function toggleDetail(key){
+  const el=document.getElementById("detail-"+encodeURIComponent(key));
+  if(el) el.classList.toggle("open");
+}
+
+function matchHTML(m){
+  const sc=score(m), pr=predictionFor(m), tier=confidenceTier(sc);
+  const quality=dataQuality(m), rc=riskClass(m);
+  const reasons=compactReasons(m), key=matchKey(m), fav=isFavorite(m);
+  return '<article class="match">'+
+    '<div class="match-top"><div><div class="league">'+esc(m.league)+(m.date?' · '+esc(m.date):'')+'</div>'+
+    '<div class="teams">'+esc(m.home)+' — '+esc(m.away)+'</div></div>'+
+    '<div style="display:flex;align-items:center;gap:8px"><button class="favorite-btn '+(fav?'on':'')+'" type="button" data-fav-key="'+esc(key)+'">'+(fav?'★':'☆')+'</button><div class="score">%'+sc+'</div></div></div>'+
+    '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><span class="tier '+tier.cls+'">'+tier.label+'</span>'+
+    (quality.ok?'<span class="clean-badge">✓ Veri temiz</span>':'<span class="warn-badge">⚠ Veri şüpheli</span>')+
+    '<span class="'+(rc==='high'?'warn-badge':'clean-badge')+'">'+(rc==='high'?'⚠ Yüksek risk':rc==='medium'?'Orta risk':'Düşük risk')+'</span></div>'+
+    '<div class="odds"><div class="odd"><small>MS 1</small><b>'+(m.ms1??"—")+'</b></div>'+
+    '<div class="odd"><small>X</small><b>'+(m.x??"—")+'</b></div>'+
+    '<div class="odd"><small>MS 2</small><b>'+(m.ms2??"—")+'</b></div></div>'+
+    '<div style="margin-top:12px;padding:12px;border-radius:14px;background:#f9fafb;border:1px solid #e5e7eb">'+
+    '<div style="font-weight:900;margin-bottom:8px">🎯 Tahmin</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">'+
+    '<div><span style="color:#6b7280">Ana:</span> <b>'+esc(pr.main)+'</b></div>'+
+    '<div><span style="color:#6b7280">Alternatif:</span> <b>'+esc(pr.alt)+'</b></div>'+
+    '<div><span style="color:#6b7280">Gol:</span> <b>'+esc(pr.goal)+'</b></div>'+
+    '<div><span style="color:#6b7280">Güven:</span> <b>%'+pr.confidence+'</b></div></div>'+
+    '<div class="reason-list">'+reasons.map(x=>'• '+esc(x)).join('<br>')+'</div></div>'+
+    '<button class="detail-btn" type="button" data-detail-key="'+esc(key)+'">Detayı aç</button>'+
+    detailHTML(m)+
+    '</article>';
+}
+
+
+const FAV_KEY="orananaliz_favorites_v1";
+function loadFavorites(){try{return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||"[]"));}catch(e){return new Set();}}
+function saveFavorites(set){localStorage.setItem(FAV_KEY,JSON.stringify([...set]));}
+function matchKey(m){return canonicalPair(m.home,m.away);}
+function isFavorite(m){return loadFavorites().has(matchKey(m));}
+function toggleFavoriteByKey(key){
+  const set=loadFavorites();
+  if(set.has(key)) set.delete(key); else set.add(key);
+  saveFavorites(set);
+  renderToday(); renderTopFive();
+  if(!$("strongView").classList.contains("hidden")) renderStrong();
+}
+function confidenceTier(sc){
+  if(sc>=85) return {label:"💎 ÇOK GÜÇLÜ",cls:"elite"};
+  if(sc>=75) return {label:"🔥 GÜÇLÜ",cls:"strong"};
+  return {label:"İZLENİR",cls:"watch"};
+}
+function compactReasons(m){
+  if(typeof predictionReasons==="function") return predictionReasons(m);
+  const out=[];
+  if(m.ms1!==null&&m.ms2!==null&&Math.abs(m.ms1-m.ms2)>=1) out.push("Favori oranı belirgin");
+  if(score(m)>=85) out.push("Çok yüksek güven");
+  else if(score(m)>=75) out.push("Güçlü güven");
+  if(!out.length) out.push("Oran dengesi temkinli");
+  return out.slice(0,2);
+}
+
+
+function dataQuality(m){
+  let issues=[];
+  if(!m.home||!m.away) issues.push("takım adı eksik");
+  if(m.ms1===null||m.x===null||m.ms2===null) issues.push("1X2 oran eksik");
+  if((m.home||"").length<3 || (m.away||"").length<3) issues.push("takım adı şüpheli");
+  if(/\d{4,}$/.test(m.home||"") || /\d{4,}$/.test(m.away||"")) issues.push("maç kodu temizlenmemiş");
+  if(looksLikeMarketText(m.home)||looksLikeMarketText(m.away)) issues.push("market satırı");
+  return {ok:issues.length===0,issues};
+}
+function riskClass(m){
+  const r=(typeof riskScore==="function")?riskScore(m):0;
+  if(r>=55) return "high";
+  if(r>=30) return "medium";
+  return "low";
+}
+
+function populateLeagueFilter(){
+  const el=$("leagueFilter");
+  if(!el) return;
+  const current=el.value||"all";
+  const leagues=[...new Set(liveMatches.map(m=>m.league||"Lig"))]
+    .filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),"tr"));
+  el.innerHTML='<option value="all">Tüm ligler</option>'+
+    leagues.map(l=>'<option value="'+esc(l)+'">'+esc(l)+'</option>').join('');
+  if([...el.options].some(o=>o.value===current)) el.value=current;
+}
+
+function filteredMatches(){
+  const min=Number(($("minConfidence")&&$("minConfidence").value)||0);
+  const pf=($("predictionFilter")&&$("predictionFilter").value)||"all";
+  const q=(($("teamSearch")&&$("teamSearch").value)||"").toLocaleLowerCase("tr-TR").trim();
+  const sort=($("sortMatches")&&$("sortMatches").value)||"confidence";
+  const leagueSel=($("leagueFilter")&&$("leagueFilter").value)||"all";
+  const quick=(window.__quickFilter||"all");
+  const rp=(window.__riskProfile||"all");
+
+  let list=liveMatches.filter(m=>{
+    const p=predictionFor(m);
+    const quality=dataQuality(m);
+    if(!quality.ok) return false;
+    if(score(m)<min) return false;
+    if(leagueSel!=="all" && (m.league||"Lig")!==leagueSel) return false;
+    if(q && !(m.home+" "+m.away).toLocaleLowerCase("tr-TR").includes(q)) return false;
+    if(quick==="strong" && score(m)<75) return false;
+    if(quick==="elite" && score(m)<85) return false;
+    if(quick==="goals" && p.goal==="—") return false;
+    if(quick==="favs" && !isFavorite(m)) return false;
+
+    const rc=riskClass(m);
+    if(rp==="low" && rc!=="low") return false;
+    if(rp==="high" && rc!=="high") return false;
+
+    if(pf!=="all"){
+      if(pf==="2.5 ÜST" || pf==="2.5 ALT"){
+        if(p.goal!==pf) return false;
+      }else if(!(p.main===pf || p.alt===pf)) return false;
+    }
+    return true;
+  });
+
+  list=[...list];
+  if(sort==="confidence") list.sort((a,b)=>score(b)-score(a));
+  else if(sort==="ms1") list.sort((a,b)=>(a.ms1??999)-(b.ms1??999));
+  else if(sort==="ms2") list.sort((a,b)=>(a.ms2??999)-(b.ms2??999));
+  else if(sort==="name") list.sort((a,b)=>(a.home||"").localeCompare(b.home||"","tr"));
+  return list;
+}
+
+function renderBestPick(){
+  if(!liveMatches.length){
+    $("bestPickTeams").textContent="Bugünü yenile";
+    $("bestPickPrediction").textContent="Tahmin hazırlanıyor";
+    $("bestPickReason").textContent="En yüksek güvenli maç burada gösterilecek.";
+    $("bestPickScore").textContent="%0";
+    return;
+  }
+
+  const best=[...liveMatches].sort((a,b)=>{
+    const ar=(typeof topFiveRank==="function"?topFiveRank(a):score(a));
+    const br=(typeof topFiveRank==="function"?topFiveRank(b):score(b));
+    return br-ar;
+  })[0];
+
+  const p=predictionFor(best);
+  const rs=(typeof compactReasons==="function"?compactReasons(best):
+           (typeof predictionReasons==="function"?predictionReasons(best):[]));
+
+  $("bestPickTeams").textContent=best.home+" — "+best.away;
+  $("bestPickPrediction").textContent="Ana: "+p.main+" · Gol: "+p.goal;
+  $("bestPickReason").textContent=(rs&&rs.length?rs[0]:"Oran ve güven puanı en yüksek aday.");
+  $("bestPickScore").textContent="%"+score(best);
+}
+
+function performanceStats(){
+  const h=loadHistory();
+  let total=0,won=0,lost=0;
+  Object.keys(h).forEach(date=>{
+    const rows=(h[date]&&h[date].matches)||[];
+    rows.forEach(r=>{
+      if(r.status==="won"){total++;won++;}
+      else if(r.status==="lost"){total++;lost++;}
+    });
+  });
+  return {total,won,lost,pct:total?Math.round(won/total*100):0};
+}
+
+
+function renderWatchlist(){
+  const favs=liveMatches.filter(m=>isFavorite(m));
+  const el=$("watchlistSummary");
+  if(!el) return;
+  if(!favs.length){
+    el.textContent="Henüz favori maç seçmedin.";
+    return;
+  }
+  const avg=Math.round(favs.reduce((a,m)=>a+score(m),0)/favs.length);
+  el.textContent=favs.length+" favori maç · ortalama güven %"+avg;
+}
+
+function renderPerformance(){
+  const st=performanceStats();
+  $("perfTotal").textContent=st.total;
+  $("perfWon").textContent=st.won;
+  $("perfPct").textContent="%"+st.pct;
+
+  if(!st.total){
+    $("perfText").textContent="Henüz sonuçlanmış tahmin yok. Maçlar bittikçe Geçmiş bölümünden sonuçları kontrol et.";
+  }else{
+    $("perfText").textContent=st.total+" sonuçlanan tahminde "+st.won+" başarılı, "+st.lost+" başarısız. Genel başarı %"+st.pct+".";
+  }
+}
+
+
+function miniRankHTML(m,i,label){
+  const p=predictionFor(m);
+  const c=precisionConfidence(m);
+  const risks=riskLabel(m);
+  return '<div class="rank-card">'+
+    '<div class="rank-head">'+
+      '<div style="display:flex;gap:10px"><div class="rank-num">'+(i+1)+'</div><div>'+
+        '<b>'+esc(m.home)+' — '+esc(m.away)+'</b>'+
+        '<div class="league">'+esc(label)+'</div>'+
+      '</div></div>'+
+      '<div class="score">%'+score(m)+'</div>'+
+    '</div>'+
+    '<div style="margin-top:8px;font-size:13px">Ana: <b>'+esc(p.main)+'</b> · Gol: <b>'+esc(p.goal)+'</b></div>'+
+    '<div class="split-confidence">'+
+      '<div class="conf-box"><span>MS güveni</span><b>%'+c.ms+'</b></div>'+
+      '<div class="conf-box"><span>Gol güveni</span><b>%'+c.goal+'</b></div>'+
+    '</div>'+
+    (risks.length?'<div class="risk-warn">⚠️ '+esc(risks.join(" · "))+'</div>':'')+
+    (c.hist.total>=5?'<div class="calibration">Geçmiş benzer puan: '+c.hist.won+'/'+c.hist.total+' başarılı · %'+c.hist.pct+'</div>':'')+
+  '</div>';
+}
+
+
+
+function strictCandidate(m){
+  const c=precisionConfidence(m);
+  const mat=reliabilityMaturity();
+  const adv=advancedEngine(m);
+  if(!dataQuality(m).ok) return false;
+  if(riskClass(m)==="high") return false;
+  if(consistencyCheck(m).state==="celiskili") return false;
+  if(c.ms<(mat.msT<20?74:72)) return false;
+  if(score(m)<70) return false;
+  if(adv.mem.total>=5 && adv.mem.pct<45) return false;
+  return true;
+}
+
+function safeThreeScore(m){
+  const c=precisionConfidence(m);
+  const q=dataQuality(m);
+  if(!q.ok) return -999;
+  let r=c.ms*1.6 + c.goal*.30;
+  const rc=riskClass(m);
+  if(rc==="low") r+=18;
+  else if(rc==="medium") r+=4;
+  else r-=25;
+
+  const adv=advancedEngine(m);
+  if(c.calMs&&c.calMs.samples>=15) r+=4;
+  if(adv.hist.total>=5){
+    if(adv.hist.pct>=65) r+=10;
+    else if(adv.hist.pct<45) r-=12;
+  }
+
+  const p=predictionFor(m);
+  if(p.main==="MS1"||p.main==="MS2") r+=6;
+  return r;
+}
+
+
+
+
+function consistencyCheck(m){
+  const p=predictionFor(m), c=precisionConfidence(m), adv=advancedEngine(m);
+  const move=oddsMovement(m);
+  let positives=0, negatives=0, notes=[];
+
+  if(c.ms>=78){positives+=2;notes.push("MS güveni destekliyor");}
+  else if(c.ms<65){negatives+=2;notes.push("MS güveni zayıf");}
+
+  if(riskClass(m)==="low"){positives+=1;notes.push("risk düşük");}
+  if(riskClass(m)==="high"){negatives+=2;notes.push("risk yüksek");}
+
+  if(adv.mem.total>=5){
+    if(adv.mem.pct>=60){positives+=1;notes.push("oran hafızası olumlu");}
+    if(adv.mem.pct<40){negatives+=2;notes.push("oran hafızası olumsuz");}
+  }
+
+  if(move){
+    if(p.main==="MS1"&&move.ms1!==null){
+      if(move.ms1<=-0.08){positives+=1;notes.push("MS1 oranı düşüyor");}
+      if(move.ms1>=0.10){negatives+=1;notes.push("MS1 oranı yükseliyor");}
+    }
+    if(p.main==="MS2"&&move.ms2!==null){
+      if(move.ms2<=-0.08){positives+=1;notes.push("MS2 oranı düşüyor");}
+      if(move.ms2>=0.10){negatives+=1;notes.push("MS2 oranı yükseliyor");}
+    }
+  }
+
+  if(p.goal!=="—" && c.goal<58){negatives+=1;notes.push("gol tahmini zayıf");}
+
+  const score=positives-negatives;
+  const state=score>=3?"uyumlu":score>=0?"karisik":"celiskili";
+  return {state,score,notes};
+}
+
+function leagueQualityStats(){
+  const h=loadHistory(), map={};
+  Object.values(h).forEach(day=>{
+    ((day&&day.matches)||[]).forEach(r=>{
+      if(r.status!=="won"&&r.status!=="lost") return;
+      const lg=r.league||"Lig";
+      if(!map[lg]) map[lg]={league:lg,total:0,won:0};
+      map[lg].total++;
+      if(r.status==="won") map[lg].won++;
+    });
+  });
+  return Object.values(map).map(x=>{
+    const pct=x.total?Math.round(x.won/x.total*100):0;
+    const sample=Math.min(100,Math.round(x.total/20*100));
+    const quality=Math.round(pct*.7+sample*.3);
+    return {...x,pct,sample,quality};
+  }).sort((a,b)=>b.quality-a.quality||b.total-a.total);
+}
+
+function renderConsistency(){
+  const el=$("consistencyResults"); if(!el)return;
+  const list=[...liveMatches]
+    .filter(m=>dataQuality(m).ok)
+    .map(m=>({m,c:consistencyCheck(m)}))
+    .sort((a,b)=>b.c.score-a.c.score||precisionConfidence(b.m).ms-precisionConfidence(a.m).ms)
+    .slice(0,8);
+  if(!list.length){el.innerHTML='<div class="notice">Henüz kontrol edilecek maç yok.</div>';return;}
+  el.innerHTML=list.map(x=>{
+    const cls=x.c.state==="uyumlu"?"consistency-good":x.c.state==="celiskili"?"consistency-bad":"consistency-warn";
+    const label=x.c.state==="uyumlu"?"UYUMLU":x.c.state==="celiskili"?"ÇELİŞKİLİ":"KARIŞIK";
+    return '<div class="consistency-card '+cls+'"><b>'+esc(x.m.home)+' — '+esc(x.m.away)+'</b>'+
+      '<div class="league">'+label+' · skor '+x.c.score+'</div>'+
+      '<div style="font-size:11px;margin-top:5px;color:#6b7280">'+esc(x.c.notes.slice(0,4).join(" · "))+'</div></div>';
+  }).join("");
+}
+
+function renderLeagueQuality(){
+  const el=$("leagueQualityResults"); if(!el)return;
+  const list=leagueQualityStats().filter(x=>x.total>=2).slice(0,8);
+  el.innerHTML=list.length
+    ? '<table class="compact-table"><thead><tr><th>Lig</th><th>Örnek</th><th>Başarı</th><th>Kalite</th></tr></thead><tbody>'+
+      list.map(x=>'<tr><td>'+esc(x.league)+'</td><td>'+x.total+'</td><td>%'+x.pct+'</td><td><b>%'+x.quality+'</b></td></tr>').join('')+
+      '</tbody></table>'
+    : '<div class="notice">Lig kalite skoru için henüz yeterli geçmiş yok.</div>';
+}
+
+
+function renderDoubleChance(){
+  const el=$("doubleChanceResults"); if(!el)return;
+  const list=[...liveMatches]
+    .filter(m=>dataQuality(m).ok)
+    .map(m=>({m,p:predictionFor(m),c:precisionConfidence(m)}))
+    .filter(x=>x.p.main==="1X"||x.p.main==="X2"||x.p.alt==="1X"||x.p.alt==="X2")
+    .sort((a,b)=>b.c.ms-a.c.ms)
+    .slice(0,3);
+
+  el.innerHTML=list.length
+    ? list.map((x,i)=>{
+        const pick=(x.p.main==="1X"||x.p.main==="X2")?x.p.main:x.p.alt;
+        return '<div class="rank-card"><div class="rank-head"><div style="display:flex;gap:10px"><div class="rank-num">'+(i+1)+'</div><div>'+
+        '<b>'+esc(x.m.home)+' — '+esc(x.m.away)+'</b><div class="league">Çifte şans: '+esc(pick)+'</div></div></div>'+
+        '<div class="score">%'+x.c.ms+'</div></div></div>';
+      }).join("")
+    : '<div class="notice">Bugün uygun çifte şans adayı yok.</div>';
+}
+
+function renderOddsTrendLeaders(){
+  const el=$("oddsTrendLeaders"); if(!el)return;
+  let rows=[];
+  liveMatches.forEach(m=>{
+    const mv=oddsMovement(m);
+    if(!mv) return;
+    const p=predictionFor(m);
+    let favMove=null,label="";
+    if(p.main==="MS1"||p.alt==="MS1"){favMove=mv.ms1;label="MS1";}
+    else if(p.main==="MS2"||p.alt==="MS2"){favMove=mv.ms2;label="MS2";}
+    if(favMove===null||favMove===undefined) return;
+    rows.push({m,move:favMove,label});
+  });
+  rows.sort((a,b)=>Math.abs(b.move)-Math.abs(a.move));
+  rows=rows.slice(0,6);
+
+  el.innerHTML=rows.length
+    ? rows.map(x=>{
+        const down=x.move<0, up=x.move>0;
+        return '<div class="trend-item"><b>'+esc(x.m.home)+' — '+esc(x.m.away)+'</b>'+
+          '<div class="league">'+x.label+' · '+(down?'düşüyor':up?'yükseliyor':'sabit')+'</div>'+
+          '<div style="margin-top:5px;font-weight:900" class="'+(down?'movement-down':up?'movement-up':'movement-flat')+'">'+
+          (down?'↓ ':up?'↑ ':'→ ')+(x.move>0?'+':'')+x.move.toFixed(2)+'</div></div>';
+      }).join("")
+    : '<div class="notice">Henüz oran hareketi için ikinci snapshot oluşmadı.</div>';
+}
+
+function renderDataHealth(){
+  const clean=liveMatches.filter(m=>dataQuality(m).ok).length;
+  const bad=liveMatches.length-clean;
+  const h=loadOddsHistory();
+  const day=h[todayISO()]||{};
+  const snapCount=Object.values(day).reduce((a,arr)=>a+(Array.isArray(arr)?arr.length:0),0);
+
+  if($("healthClean")) $("healthClean").textContent=clean;
+  if($("healthBad")) $("healthBad").textContent=bad;
+  if($("healthSnapshots")) $("healthSnapshots").textContent=snapCount;
+
+  const pct=liveMatches.length?Math.round(clean/liveMatches.length*100):0;
+  if($("healthText")){
+    $("healthText").textContent=liveMatches.length
+      ? "Veri temizliği %"+pct+" · "+clean+"/"+liveMatches.length+" maç kullanılabilir durumda."
+      : "Bugünü yenile dediğinde veri sağlığı hesaplanacak.";
+  }
+}
+
+function renderCompactTop(){
+  const el=$("compactTopResults"); if(!el)return;
+  const list=[...liveMatches]
+    .filter(m=>dataQuality(m).ok && consistencyCheck(m).state!=="celiskili")
+    .sort((a,b)=>safeThreeScore(b)-safeThreeScore(a))
+    .slice(0,10);
+  el.innerHTML=list.length
+    ? '<table class="compact-table"><thead><tr><th>Maç</th><th>Tahmin</th><th>Güven</th></tr></thead><tbody>'+
+      list.map(m=>{const p=predictionFor(m),c=precisionConfidence(m);
+        return '<tr><td>'+esc(m.home)+' - '+esc(m.away)+'</td><td><b>'+esc(p.main)+'</b></td><td>%'+c.ms+'</td></tr>';
+      }).join('')+
+      '</tbody></table>'
+    : '<div class="notice">Uygun aday yok.</div>';
+}
+
+function decisionFor(m){
+  const c=precisionConfidence(m), adv=advancedEngine(m), move=oddsMovement(m);
+  let pts=0,reasons=[];
+  if(dataQuality(m).ok){pts+=2;reasons.push("veri temiz");}
+  if(c.ms>=80){pts+=3;reasons.push("MS güveni yüksek");}
+  else if(c.ms>=72){pts+=1;}
+  else {pts-=2;reasons.push("MS güveni düşük");}
+  if(riskClass(m)==="low"){pts+=2;reasons.push("düşük risk");}
+  if(riskClass(m)==="high"){pts-=3;reasons.push("yüksek risk");}
+  if(adv.mem.total>=5){
+    if(adv.mem.pct>=60){pts+=2;reasons.push("oran hafızası olumlu");}
+    if(adv.mem.pct<40){pts-=3;reasons.push("oran hafızası zayıf");}
+  }
+  const pr=predictionFor(m);
+  if(move){
+    if(pr.main==="MS1"&&move.ms1!==null&&move.ms1<=-0.08){pts+=2;reasons.push("MS1 oranı düşüyor");}
+    if(pr.main==="MS2"&&move.ms2!==null&&move.ms2<=-0.08){pts+=2;reasons.push("MS2 oranı düşüyor");}
+    if(pr.main==="MS1"&&move.ms1!==null&&move.ms1>=0.10){pts-=2;reasons.push("MS1 oranı yükseliyor");}
+    if(pr.main==="MS2"&&move.ms2!==null&&move.ms2>=0.10){pts-=2;reasons.push("MS2 oranı yükseliyor");}
+  }
+  const state=pts>=7?"go":pts>=3?"wait":"no";
+  return {pts,state,reasons};
+}
+function renderDecisionDesk(){
+  const el=$("decisionDesk");
+  if(!el)return;
+  const list=[...liveMatches].filter(m=>dataQuality(m).ok)
+    .map(m=>({m,d:decisionFor(m)}))
+    .sort((a,b)=>b.d.pts-a.d.pts||precisionConfidence(b.m).ms-precisionConfidence(a.m).ms)
+    .slice(0,5);
+  if(!list.length){el.innerHTML='<div class="notice">Henüz karar üretilecek maç yok.</div>';return;}
+  el.innerHTML=list.map(x=>{
+    const m=x.m,d=x.d,p=predictionFor(m),c=precisionConfidence(m);
+    const label=d.state==="go"?"GÜÇLÜ ADAY":d.state==="wait"?"BEKLE / KONTROL":"UZAK DUR";
+    const cls=d.state==="go"?"decision-go":d.state==="wait"?"decision-wait":"decision-no";
+    return '<div class="decision-card '+cls+'"><div class="decision-title"><b>'+esc(m.home)+' — '+esc(m.away)+'</b><span class="signal-tag">'+label+'</span></div>'+
+      '<div class="league">'+esc(m.league||"Lig")+'</div>'+
+      '<div style="margin-top:7px">Ana: <b>'+esc(p.main)+'</b> · Gol: <b>'+esc(p.goal)+'</b> · Güven: <b>%'+c.ms+'</b></div>'+
+      '<div style="font-size:11px;color:#6b7280;margin-top:6px">'+esc(d.reasons.slice(0,4).join(" · "))+'</div></div>';
+  }).join("");
+}
+
+function renderDailyIntelligence(){
+  const el=$("dailyIntelligence");
+  if(!el) return;
+  if(!liveMatches.length){
+    el.textContent="Bugünü yenile dediğinde özet hazırlanacak.";
+    return;
+  }
+
+  const clean=liveMatches.filter(m=>dataQuality(m).ok);
+  const strong=clean.filter(m=>precisionConfidence(m).ms>=75 && riskClass(m)!=="high");
+  const elite=clean.filter(m=>precisionConfidence(m).ms>=85 && riskClass(m)==="low");
+  const goal=clean.filter(m=>precisionConfidence(m).goal>=75 && predictionFor(m).goal!=="—");
+  const risky=clean.filter(m=>riskClass(m)==="high");
+  const moving=clean.filter(m=>!!oddsMovement(m));
+
+  const best=[...clean].sort((a,b)=>safeThreeScore(b)-safeThreeScore(a))[0];
+  let lines=[];
+  lines.push("Toplam "+liveMatches.length+" maç · "+clean.length+" temiz veri.");
+  lines.push(strong.length+" güçlü, "+elite.length+" çok güçlü aday var.");
+  lines.push(goal.length+" maçta gol güveni %75+.");
+  lines.push(risky.length+" maç yüksek riskli.");
+  lines.push(moving.length+" maçta gün içi oran hareketi kaydı oluştu.");
+  if(best){
+    const p=predictionFor(best), c=precisionConfidence(best);
+    lines.push("Günün öne çıkanı: "+best.home+" — "+best.away+" · "+p.main+" · MS güven %"+c.ms+".");
+  }
+
+  el.innerHTML=lines.map(x=>'<div class="summary-line">'+esc(x)+'</div>').join("");
+}
+
+function avoidReason(m){
+  const reasons=[];
+  const c=precisionConfidence(m);
+  const adv=advancedEngine(m);
+  if(riskClass(m)==="high") reasons.push("yüksek risk");
+  if(c.ms<60) reasons.push("MS güveni düşük");
+  if(c.goal<55 && predictionFor(m).goal!=="—") reasons.push("gol güveni zayıf");
+  if(adv.mem.total>=5 && adv.mem.pct<40) reasons.push("geçmiş oran bandı başarısız");
+  const move=oddsMovement(m);
+  const p=predictionFor(m);
+  if(move && p.main==="MS1" && move.ms1!==null && move.ms1>=0.10) reasons.push("MS1 oranı yükseliyor");
+  if(move && p.main==="MS2" && move.ms2!==null && move.ms2>=0.10) reasons.push("MS2 oranı yükseliyor");
+  return reasons;
+}
+function renderAvoidList(){
+  const box=$("avoidResults");
+  if(!box) return;
+  const list=liveMatches
+    .map(m=>({m,reasons:avoidReason(m)}))
+    .filter(x=>x.reasons.length)
+    .sort((a,b)=>b.reasons.length-a.reasons.length || precisionConfidence(a.m).ms-precisionConfidence(b.m).ms)
+    .slice(0,8);
+
+  box.innerHTML=list.length
+    ? list.map(x=>{
+        const m=x.m,p=predictionFor(m),c=precisionConfidence(m);
+        return '<div class="avoid-card"><b>'+esc(m.home)+' — '+esc(m.away)+'</b>'+
+          '<div class="league">Tahmin: '+esc(p.main)+' · MS güven %'+c.ms+'</div>'+
+          '<div style="margin-top:7px;font-size:12px">'+x.reasons.map(r=>'• '+esc(r)).join('<br>')+'</div></div>';
+      }).join("")
+    : '<div class="notice">Şimdilik belirgin kaçınılacak maç yok.</div>';
+}
+
+function buildSignals(){
+  const out=[];
+  liveMatches.forEach(m=>{
+    const move=oddsMovement(m);
+    const p=predictionFor(m);
+    const c=precisionConfidence(m);
+    const adv=advancedEngine(m);
+
+    if(move){
+      if(move.ms1!==null && move.ms1<=-0.08){
+        out.push({level:"good",score:90,title:"MS1 oran düşüşü",m,text:"MS1 "+Math.abs(move.ms1).toFixed(2)+" düştü"});
+      }
+      if(move.ms2!==null && move.ms2<=-0.08){
+        out.push({level:"good",score:90,title:"MS2 oran düşüşü",m,text:"MS2 "+Math.abs(move.ms2).toFixed(2)+" düştü"});
+      }
+      if(move.ms1!==null && move.ms1>=0.10 && (p.main==="MS1"||p.alt==="MS1")){
+        out.push({level:"warn",score:70,title:"Favori oran yükseliyor",m,text:"MS1 +"+move.ms1.toFixed(2)+" yükseldi"});
+      }
+      if(move.ms2!==null && move.ms2>=0.10 && (p.main==="MS2"||p.alt==="MS2")){
+        out.push({level:"warn",score:70,title:"Favori oran yükseliyor",m,text:"MS2 +"+move.ms2.toFixed(2)+" yükseldi"});
+      }
+    }
+
+    if(c.ms>=85 && riskClass(m)==="low"){
+      out.push({level:"good",score:80,title:"Yüksek güven + düşük risk",m,text:"Kalibre MS güveni %"+c.ms});
+    }
+
+    if(adv.mem.total>=5 && adv.mem.pct<40){
+      out.push({level:"bad",score:85,title:"Geçmiş oran hafızası zayıf",m,text:adv.mem.band+" bandında başarı %"+adv.mem.pct});
+    }
+
+    if(c.goal<60 && p.goal!=="—"){
+      out.push({level:"warn",score:60,title:"Gol tahmini zayıf",m,text:"Gol güveni yalnız %"+c.goal});
+    }
+  });
+
+  const key=x=>x.title+"__"+matchKey(x.m);
+  const seen=new Set();
+  return out
+    .sort((a,b)=>b.score-a.score)
+    .filter(x=>{const k=key(x); if(seen.has(k)) return false; seen.add(k); return true;})
+    .slice(0,12);
+}
+
+function renderSignalCenter(){
+  const box=$("signalCenterResults");
+  const sum=$("signalCenterSummary");
+  if(!box||!sum) return;
+
+  const list=buildSignals();
+  if(!list.length){
+    sum.textContent="Şimdilik belirgin sinyal yok. Sayfayı gün içinde birkaç kez yeniledikçe oran hareketi karşılaştırılacak.";
+    box.innerHTML="";
+    return;
+  }
+
+  const good=list.filter(x=>x.level==="good").length;
+  const warn=list.filter(x=>x.level==="warn").length;
+  const bad=list.filter(x=>x.level==="bad").length;
+  sum.textContent=good+" olumlu · "+warn+" dikkat · "+bad+" olumsuz sinyal";
+
+  box.innerHTML=list.map(x=>{
+    const cls=x.level==="good"?"signal-good":x.level==="bad"?"signal-bad":"signal-warn";
+    return '<div class="signal-card '+cls+'">'+
+      '<div class="signal-head"><div><b>'+esc(x.title)+'</b><div class="league">'+esc(x.m.home)+' — '+esc(x.m.away)+'</div></div>'+
+      '<span class="signal-tag">'+(x.level==="good"?"OLUMLU":x.level==="bad"?"OLUMSUZ":"DİKKAT")+'</span></div>'+
+      '<div style="margin-top:7px;font-size:12px">'+esc(x.text)+'</div>'+
+    '</div>';
+  }).join("");
+}
+
+function renderSafeThree(){
+  const box=$("safeThreeResults");
+  if(!box) return;
+
+  const list=[...liveMatches]
+    .filter(m=>strictCandidate(m))
+    .sort((a,b)=>safeThreeScore(b)-safeThreeScore(a))
+    .slice(0,3);
+
+  box.innerHTML=list.length
+    ? list.map((m,i)=>{
+        const p=predictionFor(m), c=precisionConfidence(m);
+        return '<div class="safe3">'+
+          '<div class="rank-head"><div style="display:flex;gap:10px"><div class="rank-num">'+(i+1)+'</div><div>'+
+          '<b>'+esc(m.home)+' — '+esc(m.away)+'</b><div class="league">'+esc(m.league||"Lig")+'</div></div></div>'+
+          '<div class="score">%'+c.ms+'</div></div>'+
+          '<div style="margin-top:8px">Ana: <b>'+esc(p.main)+'</b> · Gol: <b>'+esc(p.goal)+'</b></div>'+
+          '<div class="calibration">Düşük/orta risk · temiz veri'+(advancedEngine(m).hist.total?' · geçmiş %'+advancedEngine(m).hist.pct:'')+'</div>'+
+          '</div>';
+      }).join("")
+    : '<div class="notice">Sıkı filtreden geçen yeterli aday yok.</div>';
+}
+
+function renderTopMs(){
+  const box=$("topMsResults");
+  if(!box) return;
+
+  const list=[...liveMatches]
+    .filter(m=>{
+      const p=predictionFor(m);
+      return p.main==="MS1" || p.main==="MS2";
+    })
+    .sort((a,b)=>score(b)-score(a))
+    .slice(0,3);
+
+  box.innerHTML=list.length
+    ? list.map((m,i)=>miniRankHTML(m,i,"Doğrudan maç sonucu")).join("")
+    : '<div class="notice">Bugün doğrudan MS için yeterince güçlü aday yok.</div>';
+}
+
+function renderTopGoals(){
+  const box=$("topGoalResults");
+  if(!box) return;
+
+  const list=[...liveMatches]
+    .filter(m=>predictionFor(m).goal!=="—")
+    .sort((a,b)=>{
+      const pa=predictionFor(a), pb=predictionFor(b);
+      let ra=score(a), rb=score(b);
+      if(a.ust25!==null&&a.alt25!==null) ra+=Math.abs(a.ust25-a.alt25)*10;
+      if(b.ust25!==null&&b.alt25!==null) rb+=Math.abs(b.ust25-b.alt25)*10;
+      return rb-ra;
+    })
+    .slice(0,3);
+
+  box.innerHTML=list.length
+    ? list.map((m,i)=>miniRankHTML(m,i,"Gol: "+predictionFor(m).goal)).join("")
+    : '<div class="notice">Bugün net gol tahmini bulunan maç yok.</div>';
+}
+
+function riskScore(m){
+  let r=0;
+  if(m.ms1!==null&&m.ms2!==null){
+    const gap=Math.abs(m.ms1-m.ms2);
+    if(gap<0.35) r+=40;
+    else if(gap<0.65) r+=20;
+  }
+  if(score(m)<70) r+=25;
+  const p=predictionFor(m);
+  if(p.main==="Temkinli") r+=25;
+  if(p.goal==="—") r+=10;
+  return r;
+}
+
+function renderRisk(){
+  const box=$("riskResults");
+  if(!box) return;
+
+  const list=[...liveMatches]
+    .map(m=>({m,r:riskScore(m)}))
+    .filter(x=>x.r>=35)
+    .sort((a,b)=>b.r-a.r)
+    .slice(0,5);
+
+  box.innerHTML=list.length
+    ? list.map((x,i)=>{
+        const m=x.m,p=predictionFor(m);
+        return '<div class="risk-card">'+
+          '<div class="rank-head"><div style="display:flex;gap:10px"><div class="rank-num">'+(i+1)+'</div><div>'+
+            '<b>'+esc(m.home)+' — '+esc(m.away)+'</b>'+
+            '<div class="league">Risk puanı '+x.r+'</div>'+
+          '</div></div><div class="score">%'+score(m)+'</div></div>'+
+          '<div style="margin-top:8px;font-size:13px">Tahmin: <b>'+esc(p.main)+'</b> · '+(p.goal==="—"?"Gol sinyali zayıf":"Gol: "+esc(p.goal))+'</div>'+
+        '</div>';
+      }).join("")
+    : '<div class="notice">Bugün belirgin riskli maç görünmüyor.</div>';
+}
+
+function renderDashboard(){
+  const total=liveMatches.length;
+  const strong=liveMatches.filter(m=>score(m)>=75).length;
+  const ms=liveMatches.filter(m=>{
+    const p=predictionFor(m);
+    return p.main==="MS1"||p.main==="MS2";
+  }).length;
+  const goal=liveMatches.filter(m=>predictionFor(m).goal!=="—").length;
+
+  if($("sumTotal")) $("sumTotal").textContent=total;
+  if($("sumStrong")) $("sumStrong").textContent=strong;
+  if($("sumMs")) $("sumMs").textContent=ms;
+  if($("sumGoal")) $("sumGoal").textContent=goal;
+  if($("sumFav")) $("sumFav").textContent=liveMatches.filter(m=>isFavorite(m)).length;
+  if($("sumClean")) $("sumClean").textContent=liveMatches.filter(m=>dataQuality(m).ok).length;
+
+  if($("summaryText")){
+    if(!total) $("summaryText").textContent="Bugünü yenile dediğinde özet hazırlanacak.";
+    else $("summaryText").textContent=
+      total+" maç içinden "+strong+" güçlü aday seçildi. "+
+      ms+" maçta doğrudan MS tahmini, "+goal+" maçta gol tahmini var.";
+  }
+
+  renderBestPick();
+  renderPerformance();
+
+  renderWatchlist();
+
+  renderTopMs();
+
+  renderTopGoals();
+
+  renderRisk();
+
+  renderSafeThree();
+
+  renderLeaguePerformance();
+
+  populateLeagueFilter();
+
+  renderPredictionTypePerformance();
+
+  renderConfidenceBands();
+
+  renderCalibrationSummary();
+
+  renderDailyReport();
+
+  renderMarketMemory();
+
+  renderSignalCenter();
+
+  renderSnapshotCount();
+
+  renderDailyIntelligence();
+
+  renderAvoidList();
+
+  renderWeeklyPerformance();
+
+  renderAccuracyAudit();
+
+  renderDecisionDesk();
+
+  renderConsistency();
+
+  renderLeagueQuality();
+
+  renderCompactTop();
+
+  renderDoubleChance();
+
+  renderOddsTrendLeaders();
+
+  renderDataHealth();
+}
+function renderToday(){
+  const list=filteredMatches();
+  todayResults.innerHTML=list.length
+    ? list.map(matchHTML).join("")
+    : '<div class="notice" style="margin-top:12px">Bu filtreye uygun maç bulunamadı.</div>';
+  renderDashboard();
+}
+function renderStrong(){
+  const list=liveMatches
+    .filter(m=>score(m)>=75)
+    .sort((a,b)=>score(b)-score(a));
+
+  const very=list.filter(m=>score(m)>=85).length;
+  const strong=list.filter(m=>score(m)>=75&&score(m)<85).length;
+
+  if($("strongSummary")){
+    $("strongSummary").textContent=list.length
+      ? very+" çok güçlü · "+strong+" güçlü aday"
+      : "Bugün %75 ve üzeri güçlü aday bulunamadı.";
+  }
+
+  strongResults.innerHTML=list.length
+    ? list.map(matchHTML).join("")
+    : '<div class="notice">Bugün %75 ve üzeri güçlü aday bulunamadı.</div>';
+}
+
+saveSource.addEventListener("click",()=>{
+  endpoint.value=FIXED_MATCH_ENDPOINT;
+  localStorage.setItem("orananaliz_endpoint",FIXED_MATCH_ENDPOINT);
+  status.textContent="✅ Maç/oran kaynağı hazır.";
+});
+
+async function loadToday(){
+  const base=FIXED_MATCH_ENDPOINT;
+  if(!/^https?:\/\//i.test(base)){status.textContent="❌ Önce geçerli aktarım adresi gir.";return;}
+  status.textContent="⏳ Bugünün maçları çekiliyor...";
+  todayRefresh.disabled=true;headerRefresh.disabled=true;
+  try{
+    const sep=base.includes("?")?"&":"?";
+    const url=base+sep+"date="+encodeURIComponent(todayISO())+"&_="+Date.now();
+    const r=await fetch(url,{method:"GET",headers:{"Accept":"application/json"},cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const text=await r.text();
+    let payload;
+    try{payload=JSON.parse(text);}catch(e){throw new Error("Sunucu JSON döndürmedi: "+text.slice(0,80));}
+    liveMatches=finalCleanMatches(extract(payload));
+    if(!liveMatches.length){
+      const keys=payload&&typeof payload==="object"?Object.keys(payload).join(", "):"yok";
+      const oc=payload&&payload.oddsCount!==undefined?(" · oddsCount: "+payload.oddsCount):"";
+      throw new Error("JSON geldi ancak odds verisinden takım eşleşmesi çıkarılamadı. Alanlar: "+keys+oc);
+    }
+    renderToday();
+    renderTopFive();
+    status.textContent="✅ "+todayISO()+": "+liveMatches.length+" gerçek maç bulundu. Tekrarlar ve market satırları temizlendi.";
+    saveTodayPredictions();
+    snapshotOdds();
+    renderSignalCenter();
+    renderSnapshotCount();
+  }catch(err){
+    status.textContent="❌ Veri alınamadı: "+err.message;
+    todayResults.innerHTML="";
+  }finally{
+    todayRefresh.disabled=false;headerRefresh.disabled=false;
+  }
+}
+todayRefresh.addEventListener("click",loadToday);
+headerRefresh.addEventListener("click",loadToday);
+
+const saved=FIXED_MATCH_ENDPOINT;
+endpoint.value=FIXED_MATCH_ENDPOINT;
+localStorage.setItem("orananaliz_endpoint",FIXED_MATCH_ENDPOINT);
+
+
+async function fetchMatchesForDate(date){
+  const resultsBase=FIXED_RESULTS_ENDPOINT;
+  const base=FIXED_RESULTS_ENDPOINT;
+  if(!/^https?:\/\//i.test(base)) throw new Error("Sonuç servisi bağlı değil.");
+
+  const sep=base.includes("?")?"&":"?";
+  const url=base+sep+"date="+encodeURIComponent(date)+"&_="+Date.now();
+  const r=await fetch(url,{method:"GET",headers:{"Accept":"application/json"},cache:"no-store"});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const payload=JSON.parse(await r.text());
+
+  // Result proxy format
+  if(payload && Array.isArray(payload.matches)){
+    return payload.matches.map(x=>({
+      home:cleanTeamName(x.home),
+      away:cleanTeamName(x.away),
+      homeScore:num(x.homeScore),
+      awayScore:num(x.awayScore),
+      scoreText:x.score||"",
+      status:x.status||""
+    })).filter(x=>x.home&&x.away);
+  }
+
+  // Fallback to old source format
+  return extract(payload);
+}
+async function checkYesterdayResults(){
+  const date=isoDateOffset(-1);
+  const h=loadHistory();
+  if(!h[date]){
+    $("historySummary").textContent="Dün ("+date+") için kaydedilmiş tahmin yok.";
+    return;
+  }
+  $("historySummary").textContent="⏳ Dünün sonuçları kontrol ediliyor...";
+  try{
+    const matches=await fetchMatchesForDate(date);
+    mergeResultsIntoHistory(date,matches);
+    renderHistory();
+    const st=historyDayStats(loadHistory()[date]);
+    if(st.pending===st.total){
+      $("historySummary").textContent="Dünün tahminleri var ama kaynak henüz maç sonuçlarını/skorları göndermiyor. Tahminler kayıtlı; sonuç verisi geldiğinde otomatik hesaplanacak.";
+    }
+  }catch(err){
+    $("historySummary").textContent="❌ Dünün sonuçları alınamadı: "+err.message;
+  }
+}
+$("checkYesterday").addEventListener("click",checkYesterdayResults);
+$("refreshHistory").addEventListener("click",renderHistory);
+
+function exportHistoryCsv(){
+  const h=loadHistory();
+  let rows=[["Tarih","Lig","Ev Sahibi","Deplasman","Ana Tahmin","Gol Tahmini","Güven","Skor","MS Durum","Gol Durum"]];
+  Object.keys(h).sort().forEach(date=>{
+    ((h[date]&&h[date].matches)||[]).forEach(r=>{
+      rows.push([date,r.league||"Lig",r.home||"",r.away||"",r.main||"",r.goal||"",r.confidence||"",r.score||"",r.status||"",r.goalStatus||""]);
+    });
+  });
+  const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(";")).join("\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="oran-analiz-gecmis.csv";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function todaySummaryText(){
+  if(!liveMatches.length) return "Bugünün maçları henüz yüklenmedi.";
+  const safe=[...liveMatches].filter(m=>strictCandidate(m)).sort((a,b)=>safeThreeScore(b)-safeThreeScore(a)).slice(0,3);
+  const lines=["Oran Analiz - "+todayISO()];
+  safe.forEach((m,i)=>{
+    const p=predictionFor(m),c=precisionConfidence(m);
+    lines.push((i+1)+". "+m.home+" - "+m.away+" | "+p.main+" | Gol: "+p.goal+" | MS güven %"+c.ms);
+  });
+  return lines.join("\n");
+}
+async function copyTodaySummary(){
+  const text=todaySummaryText();
+  try{
+    await navigator.clipboard.writeText(text);
+    if($("historySummary")) $("historySummary").textContent="✅ Bugünün özeti panoya kopyalandı.";
+  }catch(e){
+    if($("historySummary")) $("historySummary").textContent=text;
+  }
+}
+$("exportHistory").addEventListener("click",exportHistoryCsv);
+
+function backupAllData(){
+  const payload={
+    version:1,
+    createdAt:new Date().toISOString(),
+    history:loadHistory(),
+    oddsHistory:loadOddsHistory(),
+    favorites:[...loadFavorites()],
+    settings:{
+      matchEndpoint:localStorage.getItem("orananaliz_endpoint")||"",
+      resultsEndpoint:localStorage.getItem("orananaliz_results_endpoint")||""
+    }
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="oran-analiz-yedek-"+todayISO()+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  if($("backupStatus")) $("backupStatus").textContent="✅ Yedek dosyası hazırlandı.";
+}
+function restoreAllData(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(String(reader.result||"{}"));
+      if(!data || typeof data!=="object") throw new Error("Geçersiz yedek.");
+
+      if(data.history) localStorage.setItem(HISTORY_KEY,JSON.stringify(data.history));
+      if(data.oddsHistory) localStorage.setItem(ODDS_HISTORY_KEY,JSON.stringify(data.oddsHistory));
+      if(Array.isArray(data.favorites)) localStorage.setItem(FAV_KEY,JSON.stringify(data.favorites));
+
+      renderHistory();
+      renderDashboard();
+      if($("backupStatus")) $("backupStatus").textContent="✅ Yedek başarıyla geri yüklendi.";
+    }catch(err){
+      if($("backupStatus")) $("backupStatus").textContent="❌ Yedek yüklenemedi: "+err.message;
+    }
+  };
+  reader.readAsText(file,"utf-8");
+}
+$("backupDataBtn").addEventListener("click",backupAllData);
+$("restoreDataBtn").addEventListener("click",()=>$("restoreDataFile").click());
+$("restoreDataFile").addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(f) restoreAllData(f);
+  e.target.value="";
+});
+
+$("copyTodaySummary").addEventListener("click",copyTodaySummary);
+
+
+
+
+function setQuickFilter(mode,btn){
+  window.__quickFilter=mode;
+  document.querySelectorAll(".quick-chip").forEach(x=>x.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  renderToday();
+}
+$("quickAll").addEventListener("click",function(){setQuickFilter("all",this);});
+$("quickStrong").addEventListener("click",function(){setQuickFilter("strong",this);});
+$("quickElite").addEventListener("click",function(){setQuickFilter("elite",this);});
+$("quickGoals").addEventListener("click",function(){setQuickFilter("goals",this);});
+$("quickFavs").addEventListener("click",function(){setQuickFilter("favs",this);});
+$("resetFilters").addEventListener("click",()=>{
+  $("minConfidence").value="0";
+  $("predictionFilter").value="all";
+  $("teamSearch").value="";
+  $("sortMatches").value="confidence";
+  if($("leagueFilter")) $("leagueFilter").value="all";
+  setQuickFilter("all",$("quickAll"));
+  setRiskProfile("all",$("riskProfileAll"));
+});
+$("teamSearch").addEventListener("input",()=>renderToday());
+$("sortMatches").addEventListener("change",()=>renderToday());
+
+$("refreshPerformance").addEventListener("click",renderPerformance);
+$("openFavorites").addEventListener("click",()=>{
+  window.__quickFilter="favs";
+  document.querySelectorAll(".quick-chip").forEach(x=>x.classList.remove("active"));
+  if($("quickFavs")) $("quickFavs").classList.add("active");
+  renderToday();
+  window.scrollTo({top:document.body.scrollHeight*0.35,behavior:"smooth"});
+});
+
+
+function setRiskProfile(mode,btn){
+  window.__riskProfile=mode;
+  document.querySelectorAll(".profile-btn").forEach(x=>x.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+  renderToday();
+}
+$("riskProfileAll").addEventListener("click",function(){setRiskProfile("all",this);});
+$("riskProfileLow").addEventListener("click",function(){setRiskProfile("low",this);});
+$("riskProfileHigh").addEventListener("click",function(){setRiskProfile("high",this);});
+
+$("leagueFilter").addEventListener("change",()=>renderToday());
+
+
+const FILTER_PREF_KEY="orananaliz_filter_prefs_v1";
+function saveFilterPrefs(){
+  const prefs={
+    min:$("minConfidence")?$("minConfidence").value:"0",
+    prediction:$("predictionFilter")?$("predictionFilter").value:"all",
+    league:$("leagueFilter")?$("leagueFilter").value:"all",
+    sort:$("sortMatches")?$("sortMatches").value:"confidence",
+    risk:window.__riskProfile||"all"
+  };
+  localStorage.setItem(FILTER_PREF_KEY,JSON.stringify(prefs));
+}
+function loadFilterPrefs(){
+  try{
+    const p=JSON.parse(localStorage.getItem(FILTER_PREF_KEY)||"{}");
+    if($("minConfidence")&&p.min!==undefined)$("minConfidence").value=p.min;
+    if($("predictionFilter")&&p.prediction)$("predictionFilter").value=p.prediction;
+    if($("sortMatches")&&p.sort)$("sortMatches").value=p.sort;
+    if(p.risk)window.__riskProfile=p.risk;
+  }catch(e){}
+}
+
+$("applyFilters").addEventListener("click",()=>{
+  saveFilterPrefs();
+  renderToday();
+  renderTopFive();
+});
+$("clearSettings").addEventListener("click",()=>{
+  localStorage.setItem("orananaliz_endpoint",FIXED_MATCH_ENDPOINT);
+  localStorage.setItem("orananaliz_results_endpoint",FIXED_RESULTS_ENDPOINT);
+  endpoint.value=FIXED_MATCH_ENDPOINT;
+  if(resultsEndpointInput) resultsEndpointInput.value=FIXED_RESULTS_ENDPOINT;
+  status.textContent="✅ Sabit servis adresleri yeniden yüklendi.";
+});
+
+function detectDelim(line){return [";",",","\t"].sort((a,b)=>line.split(b).length-line.split(a).length)[0];}
+function splitLine(line,d){
+  const out=[];let cur="",q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(c===d&&!q){out.push(cur.trim());cur="";}else cur+=c;}out.push(cur.trim());return out;
+}
+function normHead(s){return String(s||"").toLocaleLowerCase("tr-TR").replace(/ı/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g").replace(/ü/g,"u").replace(/ö/g,"o").replace(/ç/g,"c").replace(/[^a-z0-9]+/g,"");}
+$("csvFile").addEventListener("change",e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const lines=String(rd.result).replace(/^\uFEFF/,"").split(/\r?\n/).filter(x=>x.trim());
+      if(lines.length<2)throw new Error("Dosya boş.");
+      const d=detectDelim(lines[0]), heads=splitLine(lines[0],d), nh=heads.map(normHead);
+      const idx=(...names)=>{for(const n of names){const i=nh.indexOf(normHead(n));if(i>=0)return i;}return -1};
+      const im={home:idx("Ev Sahibi","Home","Home Team"),away:idx("Deplasman","Away","Away Team"),ms1:idx("MS1","MS 1","1"),x:idx("MS0","MS X","X"),ms2:idx("MS2","MS 2","2"),ft:idx("MS","FT","Skor","Maç Sonucu")};
+      if(Object.values(im).some(i=>i<0))throw new Error("Gerekli sütunlar bulunamadı: Ev Sahibi, Deplasman, MS1, X, MS2, MS/Skor.");
+      csvRows=lines.slice(1).map(l=>{const r=splitLine(l,d);return{home:r[im.home],away:r[im.away],ms1:num(r[im.ms1]),x:num(r[im.x]),ms2:num(r[im.ms2]),ft:r[im.ft]}}).filter(r=>r.home&&r.away&&r.ms1!==null&&r.x!==null&&r.ms2!==null&&/^\d+\s*[-:]\s*\d+$/.test(r.ft||""));
+      $("analysisStatus").textContent="✅ "+csvRows.length+" geçmiş maç yüklendi.";
+    }catch(err){csvRows=[];$("analysisStatus").textContent="❌ "+err.message;}
+  };
+  rd.readAsText(f,"utf-8");
+});
+$("analyzeBtn").addEventListener("click",()=>{
+  if(!csvRows.length){$("analysisStatus").textContent="Önce CSV dosyasını yükle.";return;}
+  const market=$("market").value, odd=Number($("odd").value), tol=Number($("tol").value);
+  const list=csvRows.filter(r=>Math.abs((r[market]??999)-odd)<=tol+.0001);
+  let h=0,d=0,a=0;
+  list.forEach(r=>{const p=String(r.ft).replace(":","-").split("-").map(Number);if(p[0]>p[1])h++;else if(p[0]<p[1])a++;else d++;});
+  const pct=(n)=>list.length?Math.round(n/list.length*100):0;
+  $("kpis").innerHTML='<div class="kpi"><span>Maç</span><b>'+list.length+'</b></div><div class="kpi"><span>MS1</span><b>%'+pct(h)+'</b></div><div class="kpi"><span>X</span><b>%'+pct(d)+'</b></div><div class="kpi"><span>MS2</span><b>%'+pct(a)+'</b></div>';
+  $("analysisResults").innerHTML=list.slice(0,100).map(r=>'<div class="match"><div class="teams">'+esc(r.home)+' — '+esc(r.away)+'</div><div class="league">Oran: '+r[market]+' · Sonuç: '+esc(r.ft)+'</div></div>').join("") || '<div class="notice" style="margin-top:12px">Bu oran aralığında eşleşme yok.</div>';
+  $("analysisStatus").textContent="✅ "+odd.toFixed(2)+" ± "+tol.toFixed(2)+" için "+list.length+" eşleşme.";
+});
+
+loadFilterPrefs();
+setView("today");
+})();
+</script>
+</body>
+</html>
