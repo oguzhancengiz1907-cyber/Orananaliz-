@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Oran Analiz — Aşama 2</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#06100b;color:#f5f7f5;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+.app{max-width:780px;margin:auto;padding:18px 15px 60px}
+h1{margin:0;font-size:25px}.sub{color:#93a49a;margin:5px 0 18px}
+.box,.match{background:#0c1811;border:1px solid #243b2d;border-radius:16px}
+.box{padding:15px;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+button{background:#12b94e;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:900}
+.count{font-size:28px;font-weight:900;color:#4be77e}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.kpi{background:#0a140e;border:1px solid #203528;border-radius:12px;padding:10px}
+.kpi small{display:block;color:#83968a;font-size:11px}.kpi b{font-size:20px}
+#status{color:#bdc9c2;line-height:1.45;margin-top:12px}
+.match{padding:14px;margin:10px 0}
+.top{display:flex;justify-content:space-between;gap:10px;color:#8fa198;font-size:12px}
+.teams{font-size:18px;font-weight:900;margin:7px 0}
+.meta{font-size:13px;color:#b2c0b8}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#10341f;color:#4bea82;font-size:11px;font-weight:800}
+.empty{text-align:center;color:#83938a;padding:35px 10px}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>⚽ Oran Analiz <span style="color:#4be77e">AŞAMA 2</span></h1>
+<div class="sub">Maç adı + lig + tarih + saat temizleme. Oran ve tahmin henüz kapalı.</div>
+
+<div class="box">
+  <div class="row">
+    <div>
+      <div style="color:#84968b;font-size:12px">TEMİZ MAÇ</div>
+      <div id="count" class="count">0</div>
+    </div>
+    <button id="refresh">Yenile</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><small>Ham Kayıt</small><b id="raw">0</b></div>
+    <div class="kpi"><small>Temiz</small><b id="clean">0</b></div>
+    <div class="kpi"><small>Elenen</small><b id="drop">0</b></div>
+  </div>
+  <div id="status">Veri bekleniyor.</div>
+</div>
+
+<div id="list"></div>
+</div>
+
+<script>
+const SOURCE="https://script.google.com/macros/s/AKfycbwg6AcWgDUywUbos5Jik7KrkwBf5TkN4q-bgEliWkE95QMRiXGOuvAxRweVUocX2qm5Sg/exec";
+const $=id=>document.getElementById(id);
+
+function txt(v){return String(v??"").trim()}
+function norm(s){
+  return txt(s).toLocaleLowerCase("tr-TR")
+    .replace(/ı/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g")
+    .replace(/ü/g,"u").replace(/ö/g,"o").replace(/ç/g,"c");
+}
+function cleanTeamName(s){
+  s=txt(s);
+  s=s.replace(/^\s*\(\d+\)\s*/,"");
+  s=s.replace(/\s*\(\d+\)\s*$/,"");
+  s=s.replace(/\s+\d{4,6}$/,"");
+  s=s.replace(/^\s*\d+\s*[-–—]\s*/,"");
+  s=s.replace(/\s+/g," ").trim();
+  return s;
+}
+function isMarketText(s){
+  const n=norm(s);
+  const bad=[
+    "ilk yari sonucu","mac sonucu","karsilikli gol","toplam gol",
+    "alt ust","handikap","cifte sans","kg var","kg yok",
+    "gol sayisi","ilk yari","ikinci yari","korner","kart"
+  ];
+  return !n || bad.some(x=>n.includes(x));
+}
+function splitTitle(v){
+  v=txt(v);
+  const seps=[" - "," – "," — "," vs "," VS "];
+  for(const sep of seps){
+    if(v.includes(sep)){
+      const p=v.split(sep);
+      if(p.length>=2)return [cleanTeamName(p[0]),cleanTeamName(p.slice(1).join(sep))];
+    }
+  }
+  return null;
+}
+function pick(o,keys){
+  for(const k of keys){
+    if(o && o[k]!==undefined && o[k]!==null && o[k]!=="") return o[k];
+  }
+  return null;
+}
+function team(v){
+  if(v && typeof v==="object") v=v.name||v.title||v.shortName||v.teamName||"";
+  return cleanTeamName(v);
+}
+function league(v){
+  if(v && typeof v==="object") v=v.name||v.title||v.shortName||"";
+  v=txt(v);
+  return v || "Lig bilgisi yok";
+}
+function extractDateTime(v){
+  v=txt(v);
+  if(!v)return {date:"Tarih bilgisi yok",time:"Saat bilgisi yok"};
+  let date="Tarih bilgisi yok",time="Saat bilgisi yok";
+  let d=v.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(d)date=`${d[3]}.${d[2]}.${d[1]}`;
+  let t=v.match(/(?:T|\s)(\d{2}:\d{2})/);
+  if(!t)t=v.match(/^(\d{1,2}:\d{2})$/);
+  if(t)time=t[1];
+  return {date,time};
+}
+function parseObject(o){
+  if(!o||typeof o!=="object"||Array.isArray(o))return null;
+
+  const teams=o.teams||{};
+  let home=pick(o,["home","homeTeam","home_team","host","team1","ev","evSahibi"]) || teams.home || teams.host;
+  let away=pick(o,["away","awayTeam","away_team","guest","team2","dep","deplasman"]) || teams.away || teams.guest;
+
+  const title=pick(o,["match","matchName","eventName","fixtureName","event","name","title"]);
+  if((!home||!away) && typeof title==="string"){
+    const p=splitTitle(title);
+    if(p){home=home||p[0];away=away||p[1]}
+  }
+
+  home=team(home); away=team(away);
+  if(!home||!away)return null;
+  if(isMarketText(home)||isMarketText(away))return null;
+  if(/^\(?\d+\)?$/.test(home)||/^\(?\d+\)?$/.test(away))return null;
+  if(home.length<2||away.length<2)return null;
+
+  let lg=pick(o,["league","competition","tournament","leagueName","competitionName"]);
+  lg=league(lg);
+
+  const dtRaw=pick(o,["date","kickoff","startTime","start_time","time","fixtureDate"]) || (o.fixture&&o.fixture.date) || "";
+  const dt=extractDateTime(dtRaw);
+
+  return {home,away,league:lg,date:dt.date,time:dt.time};
+}
+function walk(v,out,d=0){
+  if(!v||d>7)return;
+  if(Array.isArray(v)){v.forEach(x=>walk(x,out,d+1));return}
+  if(typeof v!=="object")return;
+  const m=parseObject(v); if(m)out.push(m);
+  Object.values(v).forEach(x=>{if(x&&typeof x==="object")walk(x,out,d+1)});
+}
+function dedupe(arr){
+  const map=new Map();
+  for(const m of arr){
+    const key=norm(m.home)+"|"+norm(m.away);
+    const old=map.get(key);
+    if(!old) map.set(key,m);
+    else{
+      const better={...old};
+      if(old.league==="Lig bilgisi yok" && m.league!=="Lig bilgisi yok") better.league=m.league;
+      if(old.date==="Tarih bilgisi yok" && m.date!=="Tarih bilgisi yok") better.date=m.date;
+      if(old.time==="Saat bilgisi yok" && m.time!=="Saat bilgisi yok") better.time=m.time;
+      map.set(key,better);
+    }
+  }
+  return [...map.values()];
+}
+async function load(){
+  $("refresh").disabled=true;
+  $("status").textContent="⏳ Güncel maçlar okunuyor ve temizleniyor...";
+  try{
+    const u=SOURCE+(SOURCE.includes("?")?"&":"?")+"_="+Date.now();
+    const r=await fetch(u,{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const data=await r.json();
+
+    let all=[];
+    walk(data,all);
+    const rawCount=all.length;
+    const matches=dedupe(all);
+
+    $("raw").textContent=rawCount;
+    $("clean").textContent=matches.length;
+    $("drop").textContent=Math.max(0,rawCount-matches.length);
+    $("count").textContent=matches.length;
+    $("status").textContent=matches.length
+      ? `✅ ${matches.length} temiz benzersiz maç hazır. Şimdi isim/lig/tarih/saat doğruluğunu kontrol ediyoruz.`
+      : "⚠️ Temiz maç bulunamadı.";
+
+    $("list").innerHTML=matches.length ? matches.map(m=>`
+      <div class="match">
+        <div class="top">
+          <span>${m.league}</span>
+          <span class="badge">${m.date}</span>
+        </div>
+        <div class="teams">${m.home} — ${m.away}</div>
+        <div class="meta">🕒 ${m.time}</div>
+      </div>`).join("") : '<div class="empty">Maç bulunamadı.</div>';
+  }catch(e){
+    $("count").textContent="0";
+    $("status").textContent="❌ Veri okunamadı: "+e.message;
+    $("list").innerHTML='<div class="empty">Bu aşamada oran ve tahmin sistemi kapalıdır.</div>';
+  }finally{
+    $("refresh").disabled=false;
+  }
+}
+$("refresh").onclick=load;
+load();
+</script>
+</body>
+</html>
